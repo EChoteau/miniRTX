@@ -3,10 +3,11 @@
 // Responsable : Personne C
 // Dépendances : SceneParser.hpp, Renderer.hpp, Image.hpp
 // TODO : TODO(C): parser les options CLI, mesurer le temps et sauvegarder l'image.
+// CHAÎNE : options CLI -> SceneParser -> Renderer -> Image::savePPM.
 
 #include <iostream>
 
 int main(int, char**) {
-    std::cout << "miniRTX : squelette C++17 (rendu a implementer)." << '\n';
+    // TODO(C): parser --help, -o, -w, -h, -s, -d et -t, puis lancer le pipeline.
     return 0;
 }

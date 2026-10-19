@@ -23,11 +23,9 @@ struct HitRecord {
     // Non propriétaire ; le matériau appartient à Scene.
     const Material* material{nullptr};
 
-    // Inverse la normale si le rayon vient de l'intérieur.
-    void setFaceNormal(const Ray& ray, const Vec3& outwardNormal) noexcept {
-        frontFace = dot(ray.direction(), outwardNormal) < 0.0;
-        normal = frontFace ? outwardNormal : -outwardNormal;
-    }
+    // TODO(A): déterminer frontFace avec dot(ray.direction, outwardNormal),
+    // puis conserver une normale orientée contre le rayon incident.
+    void setFaceNormal(const Ray&, const Vec3&) noexcept {}
 };
 
 } // namespace rt

@@ -1,0 +1,5 @@
+build/
+*.ppm
+.vscode/
+.idea/
+*.o

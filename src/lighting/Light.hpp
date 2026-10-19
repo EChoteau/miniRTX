@@ -11,6 +11,8 @@
 namespace rt {
 
 struct PointLight {
+    // EN CLAIR : une lumière ponctuelle est une lampe située en un point.
+    // TODO(B): utiliser sa position, sa couleur et son intensité dans Phong.
     // Position de la source dans le repère monde.
     Vec3 position;
     // Couleur de la lumière, habituellement dans [0, 1].

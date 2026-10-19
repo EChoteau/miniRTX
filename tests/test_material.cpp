@@ -3,6 +3,8 @@
 // Responsable : Personne B
 // Dépendances : Material.hpp, GoogleTest
 // TODO : TODO(B): tester contribution ambiante, diffuse, spéculaire et réflexion.
+// Cas : résultat ambiant/diffus (0.9,0,0), lumière sous la surface ambiant seul,
+// spéculaire (1.4,0.5,0.5), objets d'ombre devant/derrière/sous la lampe.
 
 #include <gtest/gtest.h>
 #include "material/Material.hpp"

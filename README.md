@@ -1,5 +1,8 @@
 # miniRTX
 
+**Par où commencer : lis [README_TACHES.md](README_TACHES.md) puis
+`docs/PERSONNE_X.md`.**
+
 Mini ray tracer pédagogique en C++17 : rayons primaires, intersections, modèle de
 Phong, ombres, réflexions récursives, anti-aliasing et rendu par tuiles.
 
@@ -20,8 +23,18 @@ pour les tests.
 ./build/raytracer scenes/demo.scene -o out.ppm -w 800 -h 450 -s 16 -d 5 -t 8
 ```
 
-Options : `-o` sortie PPM, `-w` largeur, `-h` hauteur, `-s` échantillons par pixel,
-`-d` profondeur maximale, `-t` nombre de threads.
+Options : `-o` sortie PPM, `-w` largeur, `-h` hauteur (et non l'aide), `-s`
+échantillons par pixel, `-d` profondeur maximale, `-t` nombre de threads.
+L'aide est demandée uniquement avec `--help`.
+
+## Voir l'image
+
+Un fichier `.ppm` peut être ouvert avec GIMP, IrfanView, l'extension VS Code
+« PBM/PPM viewer », ou converti avec ImageMagick :
+
+```bash
+convert out.ppm out.png
+```
 
 ## Format de scène
 

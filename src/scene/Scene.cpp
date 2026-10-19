@@ -3,6 +3,8 @@
 // Responsable : Personne C
 // Dépendances : Scene.hpp
 // TODO : TODO(C): parcourir les objets avec closestSoFar et propager le matériau.
+// CHAÎNE : SceneParser remplit Scene -> Renderer demande le premier hit ->
+// Scene délègue aux primitives -> Material consomme HitRecord.
 
 #include "scene/Scene.hpp"
 #include <stdexcept>
@@ -10,34 +12,37 @@
 
 namespace rt {
 
-Scene::Scene() : camera_(), background_(0.0, 0.0, 0.0) {}
+Scene::Scene()
+    // TODO(C): définir les valeurs par défaut documentées de la scène.
+    : cameraParams_(), background_(0.0, 0.0, 0.0) {}
 
 bool Scene::hit(const Ray&, double, double, HitRecord&) const {
-    // TODO(C): appeler Hittable::hit sur chaque objet avec tMax mis à jour.
+    // TODO(C): closestSoFar = tMax ; pour chaque objet, appeler hit sur
+    // [tMin, closestSoFar], puis mettre à jour closestSoFar et rec. Retourner
+    // vrai si au moins une intersection a été retenue.
     return false;
 }
 
 void Scene::addObject(std::unique_ptr<Hittable> object) {
-    objects_.push_back(std::move(object));
+    // TODO(C): transférer la propriété de object dans objects_.
+    (void)object;
 }
 
 void Scene::addMaterial(const std::shared_ptr<Material>& material) {
-    if (!material) {
-        throw std::invalid_argument("cannot add a null material");
-    }
-    materials_[material->name] = material;
+    // TODO(C): rejeter un matériau nul et signaler un nom dupliqué.
+    (void)material;
 }
 
 const std::shared_ptr<Material>& Scene::findMaterial(const std::string& name) const {
-    const auto iterator = materials_.find(name);
-    if (iterator == materials_.end()) {
-        throw std::runtime_error("unknown material: " + name);
-    }
-    return iterator->second;
+    // TODO(C): rechercher name et lever une erreur si le matériau est inconnu.
+    (void)name;
+    static const std::shared_ptr<Material> missing;
+    return missing;
 }
 
 void Scene::addLight(const PointLight& light) {
-    lights_.push_back(light);
+    // TODO(C): ajouter la lumière à lights_.
+    (void)light;
 }
 
 } // namespace rt

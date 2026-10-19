@@ -17,6 +17,12 @@ class Scene;
 struct PointLight;
 
 struct Material {
+    // EN CLAIR : Material décrit l'identité visuelle d'une surface : couleur,
+    // coefficients Phong et part de miroir.
+    // ENTRÉES / SORTIES : ses champs viennent du parser et sont lus par B.
+    // APPELÉ PAR : SceneParser et computeLocalShading.
+    // PAS À FAIRE ICI : ne pas lancer de rayon ni modifier la Scene.
+    // TODO(B): expliquer et valider chaque coefficient avant de calculer Phong.
     // Nom utilisé par SceneParser pour relier les objets à leur matériau.
     std::string name;
     // Couleur intrinsèque RGB dans [0, 1].
@@ -34,7 +40,8 @@ struct Material {
 // Calcule ambiant + diffus + spéculaire pour toutes les lumières non occultées.
 Color computeLocalShading(const HitRecord& hit, const Ray& viewRay, const Scene& scene);
 
-// Lance un rayon depuis un point décalé de EPSILON vers la lumière.
+// Lance un rayon depuis un point avec tMin = RAY_T_MIN ; EPSILON reste réservé
+// aux tests de dégénérescence, pas aux rayons secondaires.
 bool isInShadow(const Vec3& point, const PointLight& light, const Scene& scene);
 
 } // namespace rt

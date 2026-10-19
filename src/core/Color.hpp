@@ -4,7 +4,8 @@
 // Rôle : couleur RGB flottante, clamp et conversion PPM 8 bits.
 // Responsable : Personne A
 // Dépendances : <array>, <cstdint>, Vec3.hpp
-// TODO : TODO(A): décider si la conversion gamma doit rester ici ou dans Image.
+// TODO(A): le gamma est appliqué UNIQUEMENT dans Image::savePPM. Color ne fait
+// que le clamp et la conversion en 8 bits.
 
 #include <array>
 #include <cstdint>
@@ -14,18 +15,14 @@ namespace rt {
 
 using Color = Vec3;
 
-// Borne chaque composante RGB, puis applique éventuellement gamma dans Image.
-inline Color clampColor(const Color& color) noexcept {
-    return Color(clamp(color.x(), 0.0, 1.0),
-                 clamp(color.y(), 0.0, 1.0),
-                 clamp(color.z(), 0.0, 1.0));
+// TODO(A): borner chaque composante dans [0,1]. Le gamma reste dans Image.
+inline Color clampColor(const Color&) noexcept {
+    return Color{};
 }
 
-inline std::array<std::uint8_t, 3> toRgb8(const Color& color) noexcept {
-    const Color bounded = clampColor(color);
-    return {static_cast<std::uint8_t>(255.999 * bounded.x()),
-            static_cast<std::uint8_t>(255.999 * bounded.y()),
-            static_cast<std::uint8_t>(255.999 * bounded.z())};
+// TODO(A): convertir une couleur déjà clampée en trois composantes 8 bits.
+inline std::array<std::uint8_t, 3> toRgb8(const Color&) noexcept {
+    return {0, 0, 0};
 }
 
 } // namespace rt
