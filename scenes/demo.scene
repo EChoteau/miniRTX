@@ -1,0 +1,13 @@
+# Scène de démonstration : sol gris, trois sphères, deux lumières et ciel.
+camera 0 1.8 6 0 1 0 45
+background 0.55 0.70 1.00
+material floor 0.45 0.45 0.45 0.10 0.70 0.10 16 0.00
+material red_matte 0.80 0.05 0.04 0.10 0.85 0.05 8 0.00
+material mirror 0.92 0.92 0.92 0.04 0.08 0.15 96 0.92
+material blue_glossy 0.04 0.12 0.85 0.08 0.65 0.55 80 0.10
+light -4 6 3 1.00 0.95 0.90 1.20
+light 4 3 1 0.70 0.80 1.00 0.80
+plane 0 0 0 0 1 0 floor
+sphere -1.45 1 0 1 red_matte
+sphere 0.00 1 -0.70 1 mirror
+sphere 1.45 1 0.10 1 blue_glossy
