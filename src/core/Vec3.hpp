@@ -25,39 +25,80 @@ public:
     constexpr Vec3() noexcept : x_(0.0), y_(0.0), z_(0.0) {}
     constexpr Vec3(double x, double y, double z) noexcept : x_(x), y_(y), z_(z) {}
 
-    // TODO(A): exposer x_, y_ et z_ sans les modifier.
-    double x() const noexcept { return 0.0; }
-    double y() const noexcept { return 0.0; }
-    double z() const noexcept { return 0.0; }
-    // TODO(A): fournir l'accès mutable utilisé par les constructions de couleurs.
-    // TODO(A): retourner une référence mutable vers x_.
-    double& x() noexcept { return x_; }
-    // TODO(A): retourner une référence mutable vers y_.
+    double x() const noexcept { return x_; }
+    double y() const noexcept { return y_; }
+    double z() const noexcept { return z_; }
+
+    double& x() noexcept { return x_; }    
     double& y() noexcept { return y_; }
-    // TODO(A): retourner une référence mutable vers z_.
     double& z() noexcept { return z_; }
 
-    // TODO(A): gérer l'indexation 0=x, 1=y, 2=z et ses limites.
-    double operator[](std::size_t) const noexcept { return 0.0; }
-    // TODO(A): retourner la composante mutable sélectionnée par l'index.
-    double& operator[](std::size_t) noexcept { return x_; }
-    // TODO(A): implémenter les opérations composante par composante.
-    Vec3 operator-() const noexcept { return Vec3{}; }
-    Vec3& operator+=(const Vec3&) noexcept { return *this; }
-    Vec3& operator-=(const Vec3&) noexcept { return *this; }
-    Vec3& operator*=(double) noexcept { return *this; }
-    Vec3& operator/=(double) noexcept { return *this; }
-    Vec3& operator*=(const Vec3&) noexcept { return *this; }
-    Vec3& operator/=(const Vec3&) noexcept { return *this; }
-    // TODO(A): calculer longueur carrée, longueur et normalisation.
-    double lengthSquared() const noexcept { return 0.0; }
-    double length() const noexcept { return 0.0; }
-    Vec3 normalized() const noexcept { return Vec3{}; }
-    // TODO(A): calculer dot, cross et reflect ; normalized() retourne le nul
-    // si la longueur <= EPSILON et reflect utilise les composantes directement.
-    static double dot(const Vec3&, const Vec3&) noexcept { return 0.0; }
-    static Vec3 cross(const Vec3&, const Vec3&) noexcept { return Vec3{}; }
-    static Vec3 reflect(const Vec3&, const Vec3&) noexcept { return Vec3{}; }
+    double operator[](std::size_t index) const noexcept { 
+        switch (index) {
+            case 0: return x_;
+            case 1: return y_;
+            default: return z_;
+        }
+     }
+    double& operator[](std::size_t index) noexcept { 
+        switch (index) {
+            case 0: return x_;
+            case 1: return y_;
+            default: return z_;
+        }
+     }
+
+    Vec3 operator-() const noexcept {
+        return Vec3{-x_, -y_, -z_};
+    }
+    Vec3& operator+=(const Vec3& other) noexcept { 
+        x_ += other.x_;
+        y_ += other.y_;
+        z_ += other.z_;
+        return *this;
+    }
+    Vec3& operator-=(const Vec3& other) noexcept { 
+        x_ -= other.x_;
+        y_ -= other.y_;
+        z_ -= other.z_;
+        return *this; 
+    }
+    Vec3& operator*=(double other) noexcept { 
+        x_ *= other;
+        y_ *= other;
+        z_ *= other;
+        return *this;
+    }
+    Vec3& operator/=(double other) noexcept { 
+        x_ /= other;
+        y_ /= other;
+        z_ /= other;
+        return *this;
+    }
+    Vec3& operator*=(const Vec3& other) noexcept { 
+        x_ *= other.x_;
+        y_ *= other.y_;
+        z_ *= other.z_;
+        return *this;
+    }
+    Vec3& operator/=(const Vec3& other) noexcept { 
+        x_ /= other.x_;
+        y_ /= other.y_;
+        z_ /= other.z_;
+        return *this;
+    }
+    double lengthSquared() const noexcept {
+        return x_ * x_ + y_ * y_ + z_ * z_;
+     }
+    double length() const noexcept {
+        return std::sqrt(lengthSquared());
+    }
+    Vec3 normalized() const noexcept {
+        const double length = this->length();
+        return length <= EPSILON ? Vec3{} : *this / length; }
+    static double dot(const Vec3& a, const Vec3& b) noexcept { return a.x_ * b.x_ + a.y_ * b.y_ + a.z_ * b.z_; }
+    static Vec3 cross(const Vec3& a, const Vec3& b) noexcept { return Vec3{a.y_ * b.z_ - b.y_ * a.z_, a.z_ * b.x_ - b.z_ * a.x_, a.x_ * b.y_ - b.x_ * a.y_}; }
+    static Vec3 reflect(const Vec3& incident, const Vec3& normal) noexcept { return incident - 2 * normal * dot(incident, normal); }
 
 private:
     double x_;
@@ -65,20 +106,19 @@ private:
     double z_;
 };
 
-// TODO(A): déléguer ces opérateurs libres aux opérations de Vec3.
-inline Vec3 operator+(Vec3, const Vec3&) noexcept { return Vec3{}; }
-inline Vec3 operator-(Vec3, const Vec3&) noexcept { return Vec3{}; }
-inline Vec3 operator*(Vec3, double) noexcept { return Vec3{}; }
-inline Vec3 operator*(double, Vec3) noexcept { return Vec3{}; }
-inline Vec3 operator/(Vec3, double) noexcept { return Vec3{}; }
-inline Vec3 operator*(Vec3, const Vec3&) noexcept { return Vec3{}; }
-inline Vec3 operator/(Vec3, const Vec3&) noexcept { return Vec3{}; }
-inline double dot(const Vec3&, const Vec3&) noexcept { return 0.0; }
-inline Vec3 cross(const Vec3&, const Vec3&) noexcept { return Vec3{}; }
-inline Vec3 reflect(const Vec3&, const Vec3&) noexcept { return Vec3{}; }
+inline Vec3 operator+(Vec3 a, const Vec3& b) noexcept { return a += b; }
+
+inline Vec3 operator-(Vec3 a, const Vec3& b) noexcept { return a -= b; }
+inline Vec3 operator*(Vec3 a, double b) noexcept { return a *= b; }
+inline Vec3 operator*(double a, Vec3 b) noexcept { return b *= a; }
+inline Vec3 operator/(Vec3 a, double b) noexcept { return a /= b; }
+inline Vec3 operator*(Vec3 a, const Vec3& b) noexcept { return a *= b; }
+inline Vec3 operator/(Vec3 a, const Vec3& b) noexcept { return a /= b; }
+inline double dot(const Vec3& a, const Vec3& b) noexcept { return Vec3::dot(a, b); }
+inline Vec3 cross(const Vec3& a, const Vec3& b) noexcept { return Vec3::cross(a, b); }
+inline Vec3 reflect(const Vec3& incident, const Vec3& normal) noexcept { return Vec3::reflect(incident, normal); }
 inline std::ostream& operator<<(std::ostream& stream, const Vec3& value) {
-    // TODO(A): écrire les trois composantes séparées par des espaces.
-    (void)value;
+    stream << value.x() << ' ' << value.y() << ' ' << value.z();
     return stream;
 }
 
