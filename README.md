@@ -30,7 +30,7 @@ L'aide est demandée uniquement avec `--help`.
 ## Voir l'image
 
 Un fichier `.ppm` peut être ouvert avec GIMP, IrfanView, l'extension VS Code
-« PBM/PPM viewer », ou converti avec ImageMagick :
+« PBM/PPM viewer », ou converti avec ImageMagick : 
 
 ```bash
 convert out.ppm out.png
@@ -52,9 +52,9 @@ triangle <x1> <y1> <z1> <x2> <y2> <z2> <x3> <y3> <z3> <materialName>
 
 ## Répartition
 
-- **Personne A** : algèbre vectorielle, rayons, intersections et caméra.
-- **Personne B** : matériaux, éclairage Phong, ombres et réflexions.
-- **Personne C** : parsing, image, rendu multithreadé, CLI et benchmark.
+- **Personne A Ewenn** : algèbre vectorielle, rayons, intersections et caméra.
+- **Personne B Emilien** : matériaux, éclairage Phong, ombres et réflexions.
+- **Personne C Eliot** : parsing, image, rendu multithreadé, CLI et benchmark.
 
 ## Milestones
 
