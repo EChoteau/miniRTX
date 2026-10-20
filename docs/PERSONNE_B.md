@@ -48,3 +48,50 @@ A fournit un `HitRecord` fiable ; B renvoie une `Color` linéaire non clampée.
 
 Les valeurs Phong, ombres et réflexions sont vérifiées sans clamp prématuré,
 et C peut conserver exclusivement `Renderer::render`.
+
+# Théorie
+
+## Vecteurs de PHONG
+
+Le modèle de Phong calcule la couleur d'un point de la surface à partir de quatre vecteurs, tous définis **au point touché** `P`. Ils sont **normalisés** (longueur 1) et tous orientés **en partant de la surface**. Pour deux vecteurs unitaires, le produit scalaire est égal au cosinus de l'angle qui les sépare : 1 s'ils sont alignés, 0 s'ils sont perpendiculaires, négatif s'ils sont opposés. C'est ce qui permet de mesurer l'éclairage avec de simples produits scalaires.
+
+### Les quatre vecteurs
+
+| Vecteur | Rôle | Formule |
+|---|---|---|
+| **N** | Normale à la surface | Fournie par le `HitRecord` |
+| **L** | Direction vers la lumière | `L = normalize(light.position - P)` |
+| **V** | Direction vers l'œil | `V = normalize(-viewRay.direction)` |
+| **R** | Direction de réflexion de la lumière | `R = reflect(-L, N)` |
+
+![alt text](img/phong_vectors.png)
+
+**N : la normale.** Vecteur perpendiculaire à la surface en `P`. Elle est orientée contre le rayon incident, donc toujours tournée vers l'observateur. Elle est calculée lors de l'intersection (`HitRecord::setFaceNormal`) et fournie dans le `HitRecord`.
+
+**L : direction vers la lumière.** Vecteur unitaire allant de `P` vers la lampe. La distance `‖light.position - P‖` est conservée pour le calcul des ombres.
+
+**V : direction vers l'œil.** Vecteur unitaire allant de `P` vers la caméra. Le rayon de vue va de la caméra vers le point : on l'inverse pour que `V` parte de la surface.
+
+**R : direction de réflexion.** Direction dans laquelle un miroir parfait renverrait la lumière issue de la lampe, avec `reflect(d, n) = d - 2·(d·n)·n`. On passe `-L` car la fonction attend un vecteur incident (qui arrive sur la surface), alors que la lumière arrive de la lampe vers le point.
+
+### Les trois composantes de l'éclairage
+
+| Composante | Formule | Interprétation |
+|---|---|---|
+| Ambiante | `ambient · albedo` | Lumière indirecte, indépendante des vecteurs |
+| Diffuse | `diffuse · max(N·L, 0) · albedo` | La surface est-elle face à la lampe ? |
+| Spéculaire | `specular · max(R·V, 0)^shininess` | L'œil est-il dans l'axe du reflet ? |
+
+- **Ambiante** : ajoutée **une seule fois** par point, et non par lumière.
+- **Diffuse** : maximale quand la lampe est face à la surface, nulle quand elle est rasante ou derrière.
+- **Spéculaire** : plus `shininess` est grand, plus le reflet est petit et net. Elle n'est calculée que si le diffus est **strictement positif**, pour éviter un reflet fantôme provenant d'une lampe située derrière la surface.
+
+Pour chaque lumière non masquée par une ombre, la contribution est :
+
+```text
+light.color · intensity · (diffuse · max(N·L, 0) · albedo + specular · spec)
+```
+
+Les couleurs restent **linéaires** et ne sont pas bornées avant l'export de l'image.
+
+
