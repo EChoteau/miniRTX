@@ -20,15 +20,11 @@ public:
     // ENTRÉES / SORTIES : elle reçoit dimensions et couleurs, puis écrit PPM.
     // APPELÉ PAR : Renderer puis main.
     // PAS À FAIRE ICI : ne pas appliquer gamma pendant le shading.
-    // TODO(C): décrire le cycle dimensions -> pixels -> export.
     Image(int width, int height);
-    // TODO(C): retourner les dimensions.
-    int width() const noexcept { return 0; }
-    int height() const noexcept { return 0; }
+    int width() const noexcept;
+    int height() const noexcept;
     void setPixel(int x, int y, const Color& color);
     Color pixel(int x, int y) const;
-    // TODO(C): P6 binaire ; par composante clampColor -> pow(c, 1/2.2) ->
-    // toRgb8, puis vérifier ouverture et état du flux après écriture.
     void savePPM(const std::string& path) const;
 
 private:

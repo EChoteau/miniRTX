@@ -2,35 +2,116 @@
 // Rôle : squelette du buffer et de l'export PPM avec correction gamma.
 // Responsable : Personne C
 // Dépendances : Image.hpp, <cmath>, <fstream>, <stdexcept>
-// TODO : TODO(C): écrire l'en-tête P6 et trois octets par pixel.
 // CHAÎNE : Renderer accumule une couleur linéaire -> Image la stocke ->
 // savePPM applique clamp et gamma -> le fichier devient visualisable.
 
 #include "render/Image.hpp"
 #include <stdexcept>
+#include <iostream>
+
+#include <cmath>
+#include <fstream>
+#include <string>
+#include <vector>
 
 namespace rt {
 
 Image::Image(int width, int height)
-    // TODO(C): vérifier les dimensions et réserver width*height en size_t.
+    // Verrifie les dimensions et réserve width*height en size_t
     : width_(width), height_(height), pixels_() {
+
+    
+    if (width <= 0 || height <= 0) {
+        throw std::invalid_argument("Dimensions must be positive");
+    }
+
+    //Si supérieur à la definition ciblée (801x451) on affiche un warning mais on continue
+    if (std::max(width, height) > 801 || std::min(width, height) > 451) {
+
+        //Si supérieur à une definition 8K (au dessus non nécessaire possible faute de frappe)
+        if (std::max(width, height) > 7681 || std::min(width, height) > 4321) {
+            throw std::invalid_argument("Dimensions exceed maximum allowed values");
+        }
+
+        std::cerr << "Warning: Image dimensions (" << width << ", " << height << ") exceed the maximum expected values and may cause issues with rendering." << std::endl;
+    }
+
+    pixels_.resize(static_cast<size_t>(width) * static_cast<size_t>(height));
+
+    width_ = width;
+    height_ = height;
 }
 
-void Image::setPixel(int, int, const Color&) {
-    // TODO(C): vérifier x/y et stocker pixels_[y * width_ + x].
+int Image::width() const noexcept {
+    return width_;
+}
+
+int Image::height() const noexcept {
+    return height_;
+}
+
+void Image::setPixel(int x, int y, const Color& color) {
+    // Vérifie x/y et stocke les pixels_[y * width_ + x]
+    if (x < 0 || x >= width_ || y < 0 || y >= height_) {
+        throw std::out_of_range("Coordinates out of bounds");
+    }
+    pixels_[y * width_ + x] = color;
 }
 
 Color Image::pixel(int x, int y) const {
-    // TODO(C): vérifier les coordonnées puis retourner pixels_[y * width_ + x].
-    (void)x;
-    (void)y;
-    return Color{};
+    // Verifie les coordonnées puis retourne les pixels_[y * width_ + x]
+    if (x < 0 || x >= width_ || y < 0 || y >= height_) {
+        throw std::out_of_range("Coordinates out of bounds");
+    }
+    return pixels_[y * width_ + x];
 }
 
+
+// Écrit l'image au format PPM binaire (P6)
+// Chaque composante subit : clampColor -> gamma (pow 1/2.2) -> toRgb8
+// Lève std::runtime_error si le fichier ne peut pas être ouvert ou écrit
 void Image::savePPM(const std::string& path) const {
-    // TODO(C): écrire P6\n<w> <h>\n255\n, appliquer clamp -> pow -> toRgb8
-    // dans cet ordre et lever runtime_error en cas d'ouverture ou d'écriture.
-    (void)path;
+    std::ofstream output(path, std::ios::binary);
+    if (!output) {
+        throw std::runtime_error("Failed to open file for writing: " + path);
+    }
+
+    const std::string header =
+        "P6\n" + std::to_string(width_) + " " + std::to_string(height_) + "\n255\n";
+
+    // Taille finale connue donc une seule allocation : écriture directe par index
+    std::vector<std::uint8_t> buffer(pixels_.size() * 3);
+
+    constexpr double invGamma = 1.0 / 2.2;
+    std::size_t i = 0;
+
+    // Parcours linéaire de pixels_ : même ordre que pixel(y, x) avec y=0 en haut,
+    // et pas de calcul d'index ni de vérification de bornes par pixel.
+    for (const Color& pixelColor : pixels_) {
+        // 1. clamp : évite les valeurs négatives (NaN avec pow) et > 1
+        Color c = clampColor(pixelColor);
+
+        // 2. gamma : linéaire -> espace d'affichage
+        c = Color{std::pow(c.x(), invGamma),
+                  std::pow(c.y(), invGamma),
+                  std::pow(c.z(), invGamma)};
+
+        // 3. quantification 8 bits en dernier (étape destructive)
+        const auto rgb = toRgb8(c);
+        buffer[i++] = rgb[0];
+        buffer[i++] = rgb[1];
+        buffer[i++] = rgb[2];
+    }
+
+    output.write(header.data(), static_cast<std::streamsize>(header.size()));
+    output.write(reinterpret_cast<const char*>(buffer.data()),
+                 static_cast<std::streamsize>(buffer.size()));
+    output.flush();
+
+    if (!output) {
+        throw std::runtime_error("Failed to write to file: " + path);
+    }
 }
+
 
 } // namespace rt

@@ -26,7 +26,7 @@ après les `join`.
 
 ## Plan heure par heure
 
-- [ ] 1,5 h : Image et PPM.
+- [x] 1,5 h : Image et PPM.
 - [ ] 1,5 h : rendu mono-thread et M1.
 - [ ] 3 h : SceneParser.
 - [ ] 1 h : CLI.
