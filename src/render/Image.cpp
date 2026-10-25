@@ -25,17 +25,6 @@ Image::Image(int width, int height)
         throw std::invalid_argument("Dimensions must be positive");
     }
 
-    //Si supérieur à la definition ciblée (801x451) on affiche un warning mais on continue
-    if (std::max(width, height) > 801 || std::min(width, height) > 451) {
-
-        //Si supérieur à une definition 8K (au dessus non nécessaire possible faute de frappe)
-        if (std::max(width, height) > 7681 || std::min(width, height) > 4321) {
-            throw std::invalid_argument("Dimensions exceed maximum allowed values");
-        }
-
-        std::cerr << "Warning: Image dimensions (" << width << ", " << height << ") exceed the maximum expected values and may cause issues with rendering." << std::endl;
-    }
-
     pixels_.resize(static_cast<size_t>(width) * static_cast<size_t>(height));
 
     width_ = width;
