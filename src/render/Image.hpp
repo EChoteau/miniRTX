@@ -4,8 +4,6 @@
 // Rôle : buffer RGB et export PPM P6 avec gamma 2.2.
 // Responsable : Personne C
 // Dépendances : Color.hpp, <string>, <vector>
-// TODO(C): constructeur invalid_argument si width/height <= 0 ; calculer la
-// taille en size_t. setPixel/pixel hors image -> std::out_of_range.
 
 #include <string>
 #include <vector>

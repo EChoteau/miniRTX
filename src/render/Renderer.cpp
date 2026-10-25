@@ -1,8 +1,7 @@
 // Fichier : Renderer.cpp
-// Rôle : squelette de boucle de rendu, trace récursif et tuilage atomique.
+// Rôle : Boucle de rendu, trace récursif et tuilage atomique.
 // Responsable : Personne C
 // Dépendances : Renderer.hpp, Material.hpp
-// TODO : TODO(C): distribuer les tuiles et accumuler les samples avec un RNG par thread.
 // CHAÎNE DESCENDANTE : main -> SceneParser -> render -> Camera -> trace.
 // CHAÎNE REMONTANTE : trace -> Scene::hit -> Material -> Image -> savePPM.
 
@@ -62,6 +61,7 @@ Image Renderer::render(const Scene& scene) const {
     return image;
 }
 
+// TODO(B): Check if intégration du shading Phong, ombre et réflexion jusqu'à maxDepth est réalisée
 Color Renderer::trace(const Ray& ray, const Scene& scene, int depth) const {
 
     if (depth >= settings_.maxDepth) return skyColor(ray, scene);

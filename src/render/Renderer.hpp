@@ -4,10 +4,6 @@
 // Rôle : trace récursif, anti-aliasing jitter et rendu en tuiles multithreadées.
 // Responsable : Personne C (éclairage/réflexion avec Personne B)
 // Dépendances : Image.hpp, Scene.hpp, <atomic>, <random>
-// M1 : implémenter d'abord render() en mono-thread, avec un sample centré par
-// pixel. Cette version constitue la référence fonctionnelle avant les tuiles.
-// TODO(C): compteur atomique de tuiles, RNG par tuile et accumulation linéaire.
-// TODO(B): intégrer shading Phong, ombre et réflexion jusqu'à maxDepth.
 
 #include <atomic>
 #include <random>

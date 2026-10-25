@@ -1,5 +1,5 @@
 // Fichier : Image.cpp
-// Rôle : squelette du buffer et de l'export PPM avec correction gamma.
+// Rôle : Buffer et de l'export PPM avec correction gamma.
 // Responsable : Personne C
 // Dépendances : Image.hpp, <cmath>, <fstream>, <stdexcept>
 // CHAÎNE : Renderer accumule une couleur linéaire -> Image la stocke ->
