@@ -4,6 +4,8 @@
 // Rôle : trace récursif, anti-aliasing jitter et rendu en tuiles multithreadées.
 // Responsable : Personne C (éclairage/réflexion avec Personne B)
 // Dépendances : Image.hpp, Scene.hpp, <atomic>, <random>
+// M1 : implémenter d'abord render() en mono-thread, avec un sample centré par
+// pixel. Cette version constitue la référence fonctionnelle avant les tuiles.
 // TODO(C): compteur atomique de tuiles, RNG par tuile et accumulation linéaire.
 // TODO(B): intégrer shading Phong, ombre et réflexion jusqu'à maxDepth.
 
@@ -31,19 +33,23 @@ public:
     // APPELÉ PAR : main et le benchmark.
     // PAS À FAIRE ICI : ne pas parser la scène ni écrire directement un fichier.
     // TODO(C): relier les réglages aux étapes du pipeline.
-    // TODO(C): conserver les réglages et vérifier dimensions, samples, profondeur.
+    // M1 : conserver les réglages et vérifier dimensions, samples, profondeur
+    // et tileSize ; lever std::invalid_argument si une valeur est invalide.
     explicit Renderer(RenderSettings settings = {});
-    // TODO(C): créer l'image, partager les tuiles atomiquement et écrire chaque pixel.
+    // M1 : créer l'image, construire Camera depuis scene.cameraParams(), puis
+    // parcourir y/x en mono-thread ; u=(x+0.5)/width et
+    // v=1-(y+0.5)/height ; écrire la moyenne linéaire avec setPixel().
+    // Ensuite seulement : partager les tuiles atomiquement entre workers.
     Image render(const Scene& scene) const;
     // Retourne le fond si depth atteint maxDepth, sinon intersection et éclairage.
     // TODO(B): gérer profondeur max, miss, shading local et réflexion.
-    Color trace(const Ray& r, const Scene& scene, int depth) const;
+    Color trace(const Ray& ray, const Scene& scene, int depth) const;
 
 private:
     // TODO(B/C): skyColor = (1-t)*blanc + t*background, avec
     // t = 0.5 * (ray.direction.normalized().y() + 1) ; le background est le
     // haut du ciel. L'utiliser en absence d'intersection et à profondeur max.
-    Color skyColor(const Ray& ray) const;
+    Color skyColor(const Ray& ray, const Scene& scene) const;
     RenderSettings settings_;
 };
 
