@@ -17,15 +17,15 @@
 namespace rt {
 
 Renderer::Renderer(RenderSettings settings) : settings_(settings) {
-    if (settings.width <= 0 || settings.height <= 0)
+    if (settings_.width <= 0 || settings_.height <= 0)
         throw std::invalid_argument("Width and height must be positive");
-    if (settings.samplesPerPixel <= 0)
+    if (settings_.samplesPerPixel <= 0)
         throw std::invalid_argument("Samples per pixel must be positive");
-    if (settings.maxDepth < 0)
+    if (settings_.maxDepth < 0)
         throw std::invalid_argument("Max depth must be non-negative");
-    if (settings.tileSize <= 0)
+    if (settings_.tileSize <= 0)
         throw std::invalid_argument("Tile size must be positive");
-    if (settings.threadCount == 0)
+    if (settings_.threadCount == 0)
         throw std::invalid_argument("Thread count must be at least 1");
 }
 
@@ -38,6 +38,8 @@ Image Renderer::render(const Scene& scene) const {
     Image image(settings_.width, settings_.height);
 
     //rng sans seedbase comme mono tread pour l'instant
+    //TODO(C): implémenter le tuilage atomique et le RNG par tuile pour le multi-threading.
+    //TODO(C): implémenter le multi-threading avec ThreadPool et std::atomic pour le partage des tuiles.
     const int spp = settings_.samplesPerPixel;
     std::mt19937 rng(1337u);
     std::uniform_real_distribution<double> dist(0.0, 1.0);

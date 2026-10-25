@@ -27,28 +27,22 @@ struct RenderSettings {
 
 class Renderer {
 public:
+    public:
     // EN CLAIR : Renderer orchestre le trajet caméra -> rayon -> intersection
     // -> couleur -> image. Il sépare trace (B) et render (C).
     // ENTRÉES / SORTIES : il reçoit Scene et réglages, puis renvoie Image.
     // APPELÉ PAR : main et le benchmark.
     // PAS À FAIRE ICI : ne pas parser la scène ni écrire directement un fichier.
-    // TODO(C): relier les réglages aux étapes du pipeline.
-    // M1 : conserver les réglages et vérifier dimensions, samples, profondeur
-    // et tileSize ; lever std::invalid_argument si une valeur est invalide.
+
+    // TODO(C): relier tileSize et threadCount lors du passage aux tuiles.
     explicit Renderer(RenderSettings settings = {});
-    // M1 : créer l'image, construire Camera depuis scene.cameraParams(), puis
-    // parcourir y/x en mono-thread ; u=(x+0.5)/width et
-    // v=1-(y+0.5)/height ; écrire la moyenne linéaire avec setPixel().
-    // Ensuite seulement : partager les tuiles atomiquement entre workers.
+    // TODO(C): implémenter le tuilage atomique et le RNG par tuile pour le multi-threading.
     Image render(const Scene& scene) const;
+
     // Retourne le fond si depth atteint maxDepth, sinon intersection et éclairage.
-    // TODO(B): gérer profondeur max, miss, shading local et réflexion.
     Color trace(const Ray& ray, const Scene& scene, int depth) const;
 
 private:
-    // TODO(B/C): skyColor = (1-t)*blanc + t*background, avec
-    // t = 0.5 * (ray.direction.normalized().y() + 1) ; le background est le
-    // haut du ciel. L'utiliser en absence d'intersection et à profondeur max.
     Color skyColor(const Ray& ray, const Scene& scene) const;
     RenderSettings settings_;
 };
