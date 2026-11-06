@@ -14,6 +14,7 @@
 
 namespace {
 
+/// Affiche la syntaxe et les options de la ligne de commande.
 void printUsage(const char* program) {
     std::cout
         << "Usage: " << program
@@ -29,6 +30,7 @@ void printUsage(const char* program) {
         << "  --help          Show this help\n";
 }
 
+/// Convertit une chaîne en entier et signale l'option fautive.
 int parseInt(const std::string& value, const char* option) {
     std::size_t parsed = 0;
     int result = 0;
@@ -44,6 +46,7 @@ int parseInt(const std::string& value, const char* option) {
     return result;
 }
 
+/// Convertit une chaîne en entier strictement positif.
 unsigned parseUnsigned(const std::string& value, const char* option) {
     const int result = parseInt(value, option);
     if (result <= 0)
@@ -53,6 +56,7 @@ unsigned parseUnsigned(const std::string& value, const char* option) {
 
 } // namespace
 
+/// Charge une scène, lance le rendu et enregistre l'image produite.
 int main(int argc, char** argv) {
     if (argc == 1) {
         printUsage(argv[0]);
@@ -68,6 +72,7 @@ int main(int argc, char** argv) {
         if (argc < 2)
             throw std::invalid_argument("a scene file is required");
 
+        //// PARSING CLI
         std::string scenePath;
         std::string outputPath;
         rt::RenderSettings settings;
@@ -103,9 +108,16 @@ int main(int argc, char** argv) {
         if (outputPath.empty())
             throw std::invalid_argument("missing required option -o");
 
+        //// PARSING
         const rt::Scene scene = rt::SceneParser::parseFile(scenePath);
+
+        //// RENDERING
         const rt::Image image = rt::Renderer(settings).render(scene);
+
+        //// SAVE
         image.savePPM(outputPath);
+
+
     } catch (const std::exception& error) {
         std::cerr << "Error: " << error.what() << '\n';
         return 1;
@@ -113,4 +125,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-

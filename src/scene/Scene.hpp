@@ -16,41 +16,44 @@
 
 namespace rt {
 
+/// Conteneur des objets, matériaux, lumières et paramètres d'une scène.
 class Scene {
 public:
-    // EN CLAIR : Scene est le classeur qui possède les objets et référence les
-    // matériaux, lumières, caméra et couleur du ciel.
-    // ENTRÉES / SORTIES : elle reçoit des éléments construits par le parseur et
-    // les fournit au renderer et aux fonctions de shading.
-    // APPELÉ PAR : SceneParser, Renderer et Material.
-    // PAS À FAIRE ICI : ne pas parser de texte ni calculer une couleur.
-    
+    /// Initialise une scène avec une caméra par défaut et un fond noir.
     Scene();
-    
+
+    /// Recherche l'intersection la plus proche avec les objets de la scène.
     bool hit(const Ray& r, double tMin, double tMax, HitRecord& rec) const;
+
+    /// Ajoute un objet en transférant sa propriété à la scène.
     void addObject(std::unique_ptr<Hittable> object);
+
+    /// Ajoute un matériau, dont le nom doit être unique.
     void addMaterial(const std::shared_ptr<Material>& material);
+
+    /// Recherche un matériau par son nom.
     const std::shared_ptr<Material>& findMaterial(const std::string& name) const;
+
+    /// Ajoute une lumière à la scène.
     void addLight(const PointLight& light);
 
-    // Expose la collection d'objets sans transférer sa propriété.
+    /// Retourne les objets sans en transférer la propriété.
     const std::vector<std::unique_ptr<Hittable>>& objects() const noexcept { return objects_; }
 
-    // Expose les lumières en lecture seule.
+    /// Retourne les lumières en lecture seule.
     const std::vector<PointLight>& lights() const noexcept { return lights_; }
 
-    // Expose les paramètres caméra lus par SceneParser.
+    /// Retourne les paramètres de caméra.
     const CameraParams& cameraParams() const noexcept { return cameraParams_; }
 
-    // Expose la couleur du haut du ciel.
+    /// Retourne la couleur du fond.
     const Color& background() const noexcept { return background_; }
 
-    // Copier les paramètres caméra sans construire Camera ici.
+    /// Définit les paramètres de caméra.
     void setCameraParams(const CameraParams& p) noexcept { cameraParams_ = p; }
-    
-    // Enregistrer la couleur du haut du ciel.
+
+    /// Définit la couleur du fond.
     void setBackground(const Color& c) noexcept { background_ = c; }
-   
 
 private:
     std::vector<std::unique_ptr<Hittable>> objects_;

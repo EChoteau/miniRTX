@@ -12,16 +12,12 @@
 
 namespace rt {
 
+/// Parse un fichier de scène et construit la scène correspondante.
 class SceneParser {
 public:
-    // EN CLAIR : le parseur transforme chaque ligne .scene en objets de Scene.
-    // ENTRÉES / SORTIES : il reçoit un chemin et renvoie une Scene ou une erreur
-    // localisée par numéro de ligne.
-    // APPELÉ PAR : main et le benchmark.
-    // PAS À FAIRE ICI : ne pas rendre l'image ni appliquer l'éclairage.
-    // TODO(C): faire suivre les données du texte vers les constructeurs.
-    // Parse camera, background, material, light, sphere, plane et triangle optionnel.
-    // Lève std::runtime_error("line N: ...") au premier problème.
+    /// @param path Chemin du fichier de scène à lire.
+    /// @return Scène construite à partir du fichier.
+    /// @throws std::runtime_error si le fichier ou son contenu est invalide.
     static Scene parseFile(const std::string& path);
 };
 

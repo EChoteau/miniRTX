@@ -11,18 +11,25 @@
 
 namespace rt {
 
+/// Stocke une image RGB et l'exporte au format PPM.
 class Image {
 public:
-    // EN CLAIR : Image est une grille mémoire de couleurs linéaires avant
-    // export. Chaque pixel est adressé par (x,y), avec y=0 en haut.
-    // ENTRÉES / SORTIES : elle reçoit dimensions et couleurs, puis écrit PPM.
-    // APPELÉ PAR : Renderer puis main.
-    // PAS À FAIRE ICI : ne pas appliquer gamma pendant le shading.
+    /// Construit une image de dimensions positives.
     Image(int width, int height);
+
+    /// Retourne la largeur de l'image.
     int width() const noexcept;
+
+    /// Retourne la hauteur de l'image.
     int height() const noexcept;
+
+    /// Définit la couleur du pixel indiqué.
     void setPixel(int x, int y, const Color& color);
+
+    /// Retourne la couleur du pixel indiqué.
     Color pixel(int x, int y) const;
+
+    /// Écrit l'image au format PPM binaire avec correction gamma.
     void savePPM(const std::string& path) const;
 
 private:

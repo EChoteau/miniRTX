@@ -22,7 +22,7 @@ namespace {
 
 using Tokens = std::vector<std::string>;
 
-// Nombre fini sur tout le token ("1.5x", "nan", "inf" sont rejetés)
+/// Convertit un token en nombre fini.
 double toNumber(const std::string& tok) {
     char* end = nullptr;
     const double v = std::strtod(tok.c_str(), &end);
@@ -31,16 +31,23 @@ double toNumber(const std::string& tok) {
     return v;
 }
 
+/// Vérifie le nombre d'arguments d'une directive.
 void expectArity(const Tokens& t, std::size_t n) {
     if (t.size() - 1 != n)
         throw std::invalid_argument(t[0] + " expects " + std::to_string(n) +
                                     " arguments, got " + std::to_string(t.size() - 1));
 }
 
+/// Lit un nombre à la position indiquée.
 double num(const Tokens& t, std::size_t i) { return toNumber(t[i]); }
+
+/// Lit un vecteur à trois composantes.
 Vec3 vec(const Tokens& t, std::size_t i) { return Vec3{num(t, i), num(t, i + 1), num(t, i + 2)}; }
+
+/// Lit une couleur à trois composantes.
 Color col(const Tokens& t, std::size_t i) { return Color{num(t, i), num(t, i + 1), num(t, i + 2)}; }
 
+/// Vérifie qu'une valeur appartient à l'intervalle [0, 1].
 void expectUnitInterval(double value, const char* name) {
     if (value < 0.0 || value > 1.0)
         throw std::invalid_argument(std::string(name) + " must be in [0,1]");
@@ -48,6 +55,7 @@ void expectUnitInterval(double value, const char* name) {
 
 } // namespace
 
+/// Parse un fichier de scène directive par directive.
 Scene SceneParser::parseFile(const std::string& path) {
     std::ifstream in(path);
     if (!in) throw std::runtime_error("cannot open scene file '" + path + "'");

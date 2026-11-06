@@ -16,6 +16,7 @@
 
 namespace rt {
 
+/// Initialise le buffer de pixels.
 Image::Image(int width, int height)
     // Verrifie les dimensions et réserve width*height en size_t
     : width_(width), height_(height), pixels_() {
@@ -31,14 +32,17 @@ Image::Image(int width, int height)
     height_ = height;
 }
 
+/// Retourne la largeur stockée.
 int Image::width() const noexcept {
     return width_;
 }
 
+/// Retourne la hauteur stockée.
 int Image::height() const noexcept {
     return height_;
 }
 
+/// Vérifie les coordonnées puis stocke la couleur du pixel.
 void Image::setPixel(int x, int y, const Color& color) {
     // Vérifie x/y et stocke les pixels_[y * width_ + x]
     if (x < 0 || x >= width_ || y < 0 || y >= height_) {
@@ -47,6 +51,7 @@ void Image::setPixel(int x, int y, const Color& color) {
     pixels_[y * width_ + x] = color;
 }
 
+/// Vérifie les coordonnées puis retourne la couleur du pixel.
 Color Image::pixel(int x, int y) const {
     // Verifie les coordonnées puis retourne les pixels_[y * width_ + x]
     if (x < 0 || x >= width_ || y < 0 || y >= height_) {
@@ -56,9 +61,7 @@ Color Image::pixel(int x, int y) const {
 }
 
 
-// Écrit l'image au format PPM binaire (P6)
-// Chaque composante subit : clampColor -> gamma (pow 1/2.2) -> toRgb8
-// Lève std::runtime_error si le fichier ne peut pas être ouvert ou écrit
+/// Écrit l'image au format PPM binaire après clamp, gamma et quantification.
 void Image::savePPM(const std::string& path) const {
     std::ofstream output(path, std::ios::binary);
     if (!output) {
