@@ -4,7 +4,6 @@
 // Rôle : propriété des objets, matériaux, lumières, caméra et fond.
 // Responsable : Personne C
 // Dépendances : Camera.hpp, Hittable.hpp, Light.hpp, Material.hpp
-// TODO : TODO(C): parcourir les objets et retenir l'intersection t minimale.
 
 #include <memory>
 #include <string>
@@ -25,43 +24,33 @@ public:
     // les fournit au renderer et aux fonctions de shading.
     // APPELÉ PAR : SceneParser, Renderer et Material.
     // PAS À FAIRE ICI : ne pas parser de texte ni calculer une couleur.
-    // TODO(C): relier chaque méthode au pipeline propriétaire/non-propriétaire.
+    
     Scene();
-    // Les accesseurs évitent de transférer la propriété des ressources.
+    
     bool hit(const Ray& r, double tMin, double tMax, HitRecord& rec) const;
     void addObject(std::unique_ptr<Hittable> object);
     void addMaterial(const std::shared_ptr<Material>& material);
     const std::shared_ptr<Material>& findMaterial(const std::string& name) const;
     void addLight(const PointLight& light);
 
-    // TODO(C): exposer la collection d'objets sans transférer sa propriété.
-    const std::vector<std::unique_ptr<Hittable>>& objects() const noexcept {
-        // TODO(C): retourner objects_ en lecture seule.
-        static const std::vector<std::unique_ptr<Hittable>> placeholder;
-        return placeholder;
-    }
-    // TODO(C): exposer les lumières en lecture seule.
-    const std::vector<PointLight>& lights() const noexcept {
-        // TODO(C): retourner lights_ en lecture seule.
-        static const std::vector<PointLight> placeholder;
-        return placeholder;
-    }
-    // TODO(C): exposer les paramètres caméra lus par SceneParser.
-    const CameraParams& cameraParams() const noexcept {
-        // TODO(C): retourner cameraParams_.
-        static const CameraParams placeholder;
-        return placeholder;
-    }
-    // TODO(C): exposer la couleur du haut du ciel.
-    const Color& background() const noexcept {
-        // TODO(C): retourner background_.
-        static const Color placeholder;
-        return placeholder;
-    }
-    // TODO(C): copier les paramètres caméra sans construire Camera ici.
-    void setCameraParams(const CameraParams&) noexcept {}
-    // TODO(C): enregistrer la couleur du haut du ciel.
-    void setBackground(const Color&) noexcept {}
+    // Expose la collection d'objets sans transférer sa propriété.
+    const std::vector<std::unique_ptr<Hittable>>& objects() const noexcept { return objects_; }
+
+    // Expose les lumières en lecture seule.
+    const std::vector<PointLight>& lights() const noexcept { return lights_; }
+
+    // Expose les paramètres caméra lus par SceneParser.
+    const CameraParams& cameraParams() const noexcept { return cameraParams_; }
+
+    // Expose la couleur du haut du ciel.
+    const Color& background() const noexcept { return background_; }
+
+    // Copier les paramètres caméra sans construire Camera ici.
+    void setCameraParams(const CameraParams& p) noexcept { cameraParams_ = p; }
+    
+    // Enregistrer la couleur du haut du ciel.
+    void setBackground(const Color& c) noexcept { background_ = c; }
+   
 
 private:
     std::vector<std::unique_ptr<Hittable>> objects_;

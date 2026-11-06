@@ -28,7 +28,7 @@ après les `join`.
 
 - [x] 1,5 h : Image et PPM.
 - [x] 1,5 h : rendu mono-thread et M1. +CMT: jitter ajouté
-- [ ] 3 h : SceneParser.
+- [x] 3 h : SceneParser.
 - [ ] 1 h : CLI.
 - [ ] 2 h : tuiles, threads et RNG.
 - [ ] 1 h : benchmark.
