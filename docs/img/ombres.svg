@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 400" font-family="Helvetica, Arial, sans-serif" font-size="14">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#e67e22"/>
+    </marker>
+    <marker id="arrN" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2c3e50"/>
+    </marker>
+    <radialGradient id="sun"><stop offset="0" stop-color="#fff7b0"/><stop offset="1" stop-color="#f4c20d"/></radialGradient>
+  </defs>
+  <rect width="820" height="400" fill="#ffffff"/>
+  <text x="410" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#2c3e50">Rayon d'ombre : isInShadow(P, lumière)</text>
+
+  <!-- sol -->
+  <rect x="20" y="300" width="780" height="14" fill="#d5d8dc"/>
+  <line x1="20" y1="300" x2="800" y2="300" stroke="#7f8c8d" stroke-width="2"/>
+
+  <!-- rayon : partie hors [tMin, tMax] en pointillé -->
+  <line x1="150" y1="300" x2="172.6" y2="289.4" stroke="#aab7b8" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="592.8" y1="92.7" x2="720" y2="33" stroke="#aab7b8" stroke-width="2" stroke-dasharray="4 4"/>
+  <!-- partie testée -->
+  <line x1="172.6" y1="289.4" x2="590" y2="94" stroke="#e67e22" stroke-width="3" marker-end="url(#arr)"/>
+
+  <!-- normale -->
+  <line x1="150" y1="300" x2="150" y2="215" stroke="#2c3e50" stroke-width="2" marker-end="url(#arrN)"/>
+  <text x="128" y="230" fill="#2c3e50" font-style="italic">N</text>
+
+  <!-- P -->
+  <circle cx="150" cy="300" r="6" fill="#c0392b"/>
+  <text x="25" y="335" fill="#c0392b" font-weight="bold">P (point touché)</text>
+
+  <!-- tMin -->
+  <line x1="166" y1="276" x2="179" y2="303" stroke="#2c3e50" stroke-width="2"/>
+  <text x="185" y="325" fill="#2c3e50">tMin = RAY_T_MIN</text>
+  <text x="185" y="342" fill="#7f8c8d" font-size="12">(évite l'acné : P ne se touche pas lui-même)</text>
+
+  <!-- tMax -->
+  <line x1="586" y1="79" x2="599" y2="106" stroke="#2c3e50" stroke-width="2"/>
+  <text x="575" y="62" text-anchor="end" fill="#2c3e50">tMax = distance(P, lumière) − RAY_T_MIN</text>
+
+  <!-- lumière -->
+  <circle cx="620" cy="80" r="16" fill="url(#sun)" stroke="#d4ac0d" stroke-width="2"/>
+  <g stroke="#d4ac0d" stroke-width="2">
+    <line x1="620" y1="52" x2="620" y2="42"/><line x1="648" y1="80" x2="658" y2="80"/>
+    <line x1="600" y1="60" x2="593" y2="53"/><line x1="640" y1="100" x2="647" y2="107"/>
+    <line x1="640" y1="60" x2="647" y2="53"/>
+  </g>
+  <text x="655" y="105" fill="#9a7d0a" font-weight="bold">lumière</text>
+
+  <!-- direction L -->
+  <text x="30" y="170" fill="#e67e22" font-weight="bold">L = normalize(light.position − P)</text>
+
+  <!-- objet entre P et la lumière -->
+  <circle cx="400" cy="183" r="34" fill="#5dade2" stroke="#1f618d" stroke-width="2" opacity="0.9"/>
+  <text x="355" y="255" fill="#1f618d" font-weight="bold">objet entre P et la lumière</text>
+  <text x="355" y="273" fill="#1f618d">tMin &lt; t &lt; tMax → P est dans l'ombre ✔</text>
+
+  <!-- objet derrière la lumière, barré -->
+  <circle cx="735" cy="40" r="24" fill="#d5d8dc" stroke="#7f8c8d" stroke-width="2"/>
+  <line x1="712" y1="17" x2="758" y2="63" stroke="#c0392b" stroke-width="4"/>
+  <line x1="758" y1="17" x2="712" y2="63" stroke="#c0392b" stroke-width="4"/>
+  <text x="675" y="160" fill="#7f8c8d" font-weight="bold">objet derrière</text>
+  <text x="675" y="177" fill="#7f8c8d" font-weight="bold">la lumière</text>
+  <text x="675" y="196" fill="#c0392b">t &gt; tMax → ignoré ✘</text>
+
+  <text x="410" y="385" text-anchor="middle" fill="#2c3e50" font-size="13">Seuls les impacts avec tMin &lt; t &lt; tMax comptent comme obstacles (segment orange).</text>
+</svg>

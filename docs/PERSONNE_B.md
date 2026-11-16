@@ -35,8 +35,6 @@ Une lumière sous la surface ne donne que l'ambiant ; le test spéculaire attend
 est `(1.4,0.5,0.5)` et reste volontairement non clampé. Vérifier les ombres
 devant, derrière et sous la lampe, puis `reflectivity=0` et `maxDepth=0`.
 
-## Pièges
-
 Normaliser L et V, utiliser RAY_T_MIN, ignorer le spéculaire si le diffus est
 nul, borner la base de pow à zéro, arrêter la récursion et ne pas clamper tôt.
 
@@ -50,6 +48,62 @@ Les valeurs Phong, ombres et réflexions sont vérifiées sans clamp prématuré
 et C peut conserver exclusivement `Renderer::render`.
 
 # Théorie
+
+## Ordre de calcul dans le code
+
+Le calcul d'un point suit toujours le même ordre :
+
+1. récupérer `N`, `V`, le matériau et le point `P` depuis le `HitRecord` ;
+2. initialiser la couleur avec `ambient * albedo` ;
+3. pour chaque lumière, lancer le rayon d'ombre ;
+4. si la lumière est visible, calculer `L`, puis le diffus ;
+5. si le diffus est positif, calculer `R` et le spéculaire ;
+6. multiplier la contribution de cette lumière par sa couleur et son intensité ;
+7. retourner la couleur linéaire sans clamp.
+
+![alt text](img/pipeline_shading.svg)
+
+
+L'ombre ne supprime donc pas l'ambiant et ne supprime pas les autres lumières :
+elle supprime seulement les composantes diffuse et spéculaire de la lumière
+masquée.
+
+## Comprendre le rayon d'ombre
+
+![alt text](img/ombres.svg)
+
+
+Pour un point `P` et une lumière `Q`, le vecteur vers la lumière est :
+
+```text
+toLight = Q - P
+distance = length(toLight)
+L = toLight / distance
+```
+
+Le rayon d'ombre est `Ray(P, L)`. Comme `L` est normalisé, le paramètre `t`
+du rayon représente une distance. On ne teste que le segment vers la lumière :
+
+```text
+tMin = RAY_T_MIN
+tMax = distance - RAY_T_MIN
+```
+
+`tMin` évite que la surface de départ se détecte elle-même (acné d'ombre).
+`tMax` empêche un objet situé derrière la lumière de bloquer la lumière.
+
+## Lire les résultats des tests
+
+Avec `P=(0,0,0)`, `N=(0,1,0)` et une lumière blanche en `(0,10,0)`,
+`L=N`, donc `N·L=1`. Pour un albedo rouge, `ambient=0.1` et `diffuse=0.8`,
+le résultat est `(0.9,0,0)`.
+
+Si la lumière est en `(0,-10,0)`, alors `N·L=-1`. Après le `max`, le diffus
+vaut zéro. Le spéculaire est également ignoré : il reste uniquement l'ambiant.
+
+Avec une vue alignée sur le reflet et `specular=0.5`, la composante spéculaire
+peut dépasser 1 dans un canal. Le résultat `(1.4,0.5,0.5)` est correct avant
+export : le clamp et le gamma ne doivent pas être appliqués dans le shading.
 
 ## Vecteurs de PHONG
 
@@ -93,5 +147,4 @@ light.color · intensity · (diffuse · max(N·L, 0) · albedo + specular · spe
 ```
 
 Les couleurs restent **linéaires** et ne sont pas bornées avant l'export de l'image.
-
 
