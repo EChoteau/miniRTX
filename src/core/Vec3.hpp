@@ -4,7 +4,8 @@
 // Rôle : vecteur 3D et opérations algébriques utilisées par tous les rayons.
 // Responsable : Personne A
 // Dépendances : <cmath>, <cstddef>, <ostream>, Utils.hpp
-// TODO : TODO(A): compléter les tests de cas dégénérés et de division par zéro.
+// Note : la division par un scalaire nul n'est pas protégée (comportement IEEE) ;
+// normalized() est protégée et renvoie le vecteur nul.
 
 #include <cmath>
 #include <cstddef>
@@ -21,7 +22,6 @@ public:
     // vecteur, une longueur ou un produit scalaire.
     // APPELÉ PAR : presque toutes les classes du moteur.
     // PAS À FAIRE ICI : ne pas normaliser automatiquement les directions d'un Ray.
-    // TODO(A): définir les règles de calcul et les cas dégénérés de chaque opération.
     constexpr Vec3() noexcept : x_(0.0), y_(0.0), z_(0.0) {}
     constexpr Vec3(double x, double y, double z) noexcept : x_(x), y_(y), z_(z) {}
 
@@ -29,18 +29,18 @@ public:
     double y() const noexcept { return y_; }
     double z() const noexcept { return z_; }
 
-    double& x() noexcept { return x_; }    
+    double& x() noexcept { return x_; }
     double& y() noexcept { return y_; }
     double& z() noexcept { return z_; }
 
-    double operator[](std::size_t index) const noexcept { 
+    double operator[](std::size_t index) const noexcept {
         switch (index) {
             case 0: return x_;
             case 1: return y_;
             default: return z_;
         }
      }
-    double& operator[](std::size_t index) noexcept { 
+    double& operator[](std::size_t index) noexcept {
         switch (index) {
             case 0: return x_;
             case 1: return y_;
@@ -51,37 +51,37 @@ public:
     Vec3 operator-() const noexcept {
         return Vec3{-x_, -y_, -z_};
     }
-    Vec3& operator+=(const Vec3& other) noexcept { 
+    Vec3& operator+=(const Vec3& other) noexcept {
         x_ += other.x_;
         y_ += other.y_;
         z_ += other.z_;
         return *this;
     }
-    Vec3& operator-=(const Vec3& other) noexcept { 
+    Vec3& operator-=(const Vec3& other) noexcept {
         x_ -= other.x_;
         y_ -= other.y_;
         z_ -= other.z_;
-        return *this; 
+        return *this;
     }
-    Vec3& operator*=(double other) noexcept { 
+    Vec3& operator*=(double other) noexcept {
         x_ *= other;
         y_ *= other;
         z_ *= other;
         return *this;
     }
-    Vec3& operator/=(double other) noexcept { 
+    Vec3& operator/=(double other) noexcept {
         x_ /= other;
         y_ /= other;
         z_ /= other;
         return *this;
     }
-    Vec3& operator*=(const Vec3& other) noexcept { 
+    Vec3& operator*=(const Vec3& other) noexcept {
         x_ *= other.x_;
         y_ *= other.y_;
         z_ *= other.z_;
         return *this;
     }
-    Vec3& operator/=(const Vec3& other) noexcept { 
+    Vec3& operator/=(const Vec3& other) noexcept {
         x_ /= other.x_;
         y_ /= other.y_;
         z_ /= other.z_;
@@ -93,12 +93,32 @@ public:
     double length() const noexcept {
         return std::sqrt(lengthSquared());
     }
+    // normalized() retourne le vecteur NUL si la longueur <= EPSILON : l'appelant
+    // doit tester ce cas. Les méthodes de Vec3 n'utilisent que des membres, jamais
+    // les opérateurs libres définis plus bas (invisibles à cet endroit).
     Vec3 normalized() const noexcept {
-        const double length = this->length();
-        return length <= EPSILON ? Vec3{} : *this / length; }
-    static double dot(const Vec3& a, const Vec3& b) noexcept { return a.x_ * b.x_ + a.y_ * b.y_ + a.z_ * b.z_; }
-    static Vec3 cross(const Vec3& a, const Vec3& b) noexcept { return Vec3{a.y_ * b.z_ - b.y_ * a.z_, a.z_ * b.x_ - b.z_ * a.x_, a.x_ * b.y_ - b.x_ * a.y_}; }
-    static Vec3 reflect(const Vec3& incident, const Vec3& normal) noexcept { return incident - 2 * normal * dot(incident, normal); }
+        const double len = length();
+        if (len <= EPSILON) {
+            return Vec3{};
+        }
+        const double inv = 1.0 / len;
+        return Vec3{x_ * inv, y_ * inv, z_ * inv};
+    }
+    static double dot(const Vec3& a, const Vec3& b) noexcept {
+        return a.x_ * b.x_ + a.y_ * b.y_ + a.z_ * b.z_;
+    }
+    static Vec3 cross(const Vec3& a, const Vec3& b) noexcept {
+        return Vec3{a.y_ * b.z_ - a.z_ * b.y_,
+                    a.z_ * b.x_ - a.x_ * b.z_,
+                    a.x_ * b.y_ - a.y_ * b.x_};
+    }
+    // reflect(v, n) = v - 2 (v·n) n ; n doit être unitaire.
+    static Vec3 reflect(const Vec3& incident, const Vec3& normal) noexcept {
+        const double d = 2.0 * dot(incident, normal);
+        return Vec3{incident.x_ - d * normal.x_,
+                    incident.y_ - d * normal.y_,
+                    incident.z_ - d * normal.z_};
+    }
 
 private:
     double x_;
