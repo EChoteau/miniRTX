@@ -95,6 +95,19 @@ TEST(Vec3Test, NormalizedZeroVectorIsZeroWithoutNaN) {
     expectVecNear(Vec3(1e-9, 0, 0).normalized(), Vec3(0, 0, 0));
 }
 
+TEST(Vec3Test, DivisionByZeroReturnsZeroComponents) {
+    const Vec3 value(1.0, -2.0, 3.0);
+    expectVecNear(value / 0.0, Vec3(0, 0, 0));
+    expectVecNear(value / Vec3(0.0, 2.0, 0.0), Vec3(0.0, -1.0, 0.0));
+}
+
+TEST(Vec3Test, DivisionByZeroDoesNotProduceNonFiniteValues) {
+    const Vec3 result = Vec3(1.0, 2.0, 3.0) / Vec3(0.0, 0.0, 0.0);
+    EXPECT_TRUE(std::isfinite(result.x()));
+    EXPECT_TRUE(std::isfinite(result.y()));
+    EXPECT_TRUE(std::isfinite(result.z()));
+}
+
 TEST(Vec3Test, Reflect) {
     expectVecNear(rt::reflect(Vec3(1, -1, 0), Vec3(0, 1, 0)), Vec3(1, 1, 0));
     // Incidence normale : le rayon repart en sens inverse.

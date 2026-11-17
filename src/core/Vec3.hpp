@@ -4,8 +4,9 @@
 // Rôle : vecteur 3D et opérations algébriques utilisées par tous les rayons.
 // Responsable : Personne A
 // Dépendances : <cmath>, <cstddef>, <ostream>, Utils.hpp
-// Note : la division par un scalaire nul n'est pas protégée (comportement IEEE) ;
-// normalized() est protégée et renvoie le vecteur nul.
+// Les divisions par zéro produisent 0 pour la composante concernée afin de ne
+// jamais propager de valeur infinie ou NaN dans les calculs du moteur.
+// normalized() renvoie le vecteur nul si la longueur <= EPSILON.
 
 #include <cmath>
 #include <cstddef>
@@ -70,9 +71,9 @@ public:
         return *this;
     }
     Vec3& operator/=(double other) noexcept {
-        x_ /= other;
-        y_ /= other;
-        z_ /= other;
+        x_ = divideComponent(x_, other);
+        y_ = divideComponent(y_, other);
+        z_ = divideComponent(z_, other);
         return *this;
     }
     Vec3& operator*=(const Vec3& other) noexcept {
@@ -82,9 +83,9 @@ public:
         return *this;
     }
     Vec3& operator/=(const Vec3& other) noexcept {
-        x_ /= other.x_;
-        y_ /= other.y_;
-        z_ /= other.z_;
+        x_ = divideComponent(x_, other.x_);
+        y_ = divideComponent(y_, other.y_);
+        z_ = divideComponent(z_, other.z_);
         return *this;
     }
     double lengthSquared() const noexcept {
@@ -121,6 +122,10 @@ public:
     }
 
 private:
+    static double divideComponent(double numerator, double denominator) noexcept {
+        return denominator == 0.0 ? 0.0 : numerator / denominator;
+    }
+
     double x_;
     double y_;
     double z_;
