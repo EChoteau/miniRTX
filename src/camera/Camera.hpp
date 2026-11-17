@@ -4,10 +4,11 @@
 // Rôle : caméra perspective et génération de rayons primaires.
 // Responsable : Personne A
 // Dépendances : Ray.hpp, Utils.hpp
-// TODO(A): lancer std::invalid_argument si lookAt == position ; si up est
-// parallèle à la visée, utiliser (0,0,1) à la place.
+// Lance std::invalid_argument si lookAt == position, fov hors ]0,180[ ou
+// aspect <= 0 ; si up est parallèle à la visée, (0,0,1) est utilisé à la place.
 
 #include "core/Ray.hpp"
+#include "core/Utils.hpp"
 
 namespace rt {
 
@@ -25,9 +26,8 @@ public:
     // ENTRÉES / SORTIES : elle reçoit pose, FOV et aspect, puis renvoie un Ray.
     // APPELÉ PAR : Renderer::render.
     // PAS À FAIRE ICI : ne pas intersecter la scène ni choisir une couleur.
-    // TODO(A): construire la base orthonormée et traiter les cas dégénérés.
-    // TODO(A): fournir une caméra par défaut cohérente avec CameraParams.
-    Camera() noexcept = default;
+    // Caméra par défaut = CameraParams{} avec aspect 1.
+    Camera();
     // FOV vertical en degrés ; aspect = largeur / hauteur.
     Camera(const Vec3& position, const Vec3& lookAt, const Vec3& up,
            double verticalFovDegrees, double aspectRatio);
