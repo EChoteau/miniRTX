@@ -1,8 +1,7 @@
 // Fichier : Scene.cpp
-// Rôle : squelette de gestion des objets et recherche de l'intersection la plus proche.
+// Rôle : Gestion des objets et recherche de l'intersection la plus proche.
 // Responsable : Personne C
 // Dépendances : Scene.hpp
-// TODO : TODO(C): parcourir les objets avec closestSoFar et propager le matériau.
 // CHAÎNE : SceneParser remplit Scene -> Renderer demande le premier hit ->
 // Scene délègue aux primitives -> Material consomme HitRecord.
 
@@ -12,37 +11,49 @@
 
 namespace rt {
 
-Scene::Scene()
-    // TODO(C): définir les valeurs par défaut documentées de la scène.
-    : cameraParams_(), background_(0.0, 0.0, 0.0) {}
+/// Initialise la scène avec une caméra par défaut et un fond noir.
+Scene::Scene() : cameraParams_(), background_(0.0, 0.0, 0.0) {}
 
-bool Scene::hit(const Ray&, double, double, HitRecord&) const {
-    // TODO(C): closestSoFar = tMax ; pour chaque objet, appeler hit sur
-    // [tMin, closestSoFar], puis mettre à jour closestSoFar et rec. Retourner
-    // vrai si au moins une intersection a été retenue.
-    return false;
+/// Retourne l'intersection la plus proche avec les objets de la scène.
+bool Scene::hit(const Ray& r, double tMin, double tMax, HitRecord& rec) const {
+    HitRecord temp;
+    bool hasHitAnything = false;
+    double closestSoFar = tMax;
+    for (const auto& object : objects_) {
+        if (object->hit(r, tMin, closestSoFar, temp)) {
+            hasHitAnything = true;
+            closestSoFar = temp.t;
+            rec = temp;
+        }
+    }
+    return hasHitAnything;
 }
 
+/// Ajoute un objet et en transfère la propriété à la scène.
 void Scene::addObject(std::unique_ptr<Hittable> object) {
-    // TODO(C): transférer la propriété de object dans objects_.
-    (void)object;
+    if (!object) throw std::invalid_argument("null object");
+    objects_.push_back(std::move(object)); //move pour le unique_ptr
 }
 
+/// Ajoute un matériau dont le nom doit être unique.
 void Scene::addMaterial(const std::shared_ptr<Material>& material) {
-    // TODO(C): rejeter un matériau nul et signaler un nom dupliqué.
-    (void)material;
+    if (!material) throw std::invalid_argument("null material");
+    if (!materials_.emplace(material->name, material).second)
+        throw std::invalid_argument("duplicate material '" + material->name + "'");
 }
 
+/// Recherche un matériau par son nom.
 const std::shared_ptr<Material>& Scene::findMaterial(const std::string& name) const {
-    // TODO(C): rechercher name et lever une erreur si le matériau est inconnu.
-    (void)name;
-    static const std::shared_ptr<Material> missing;
-    return missing;
+    auto it = materials_.find(name);
+    if (it == materials_.end())
+        throw std::invalid_argument("unknown material '" + name + "'");
+    return it->second;
 }
 
-void Scene::addLight(const PointLight& light) {
-    // TODO(C): ajouter la lumière à lights_.
-    (void)light;
+/// Ajoute une lumière à la scène.
+void Scene::addLight(const PointLight& light){
+    lights_.push_back(light); 
 }
+
 
 } // namespace rt

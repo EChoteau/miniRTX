@@ -20,14 +20,17 @@ public:
     // produire lui-même de pixels.
     // APPELÉ PAR : Renderer::render.
     // PAS À FAIRE ICI : ne pas partager le RNG entre les workers.
-    // TODO(C): documenter la capture et la relance des exceptions après join.
-    // Lance workerCount threads, chacun exécutant la même boucle de tâches.
-    // TODO(C): mémoriser au moins un worker même si workerCount vaut zéro.
+    // Capture des exceptions : chaque worker attrape toute exception levée par
+    // la tâche et en mémorise la première (std::exception_ptr). Elle est
+    // relancée par run() une fois TOUS les threads joints.
+    // Un workerCount de 0 est remplacé par 1.
     explicit ThreadPool(unsigned workerCount);
     // TODO(C): attendre/arrêter les workers si le modèle évolue vers un pool persistant.
     ~ThreadPool();
     ThreadPool(const ThreadPool&) = delete;
     ThreadPool& operator=(const ThreadPool&) = delete;
+    // Exécute la même tâche sur workerCount workers (le thread appelant en est
+    // un) et bloque jusqu'à la fin de tous. Relance la première exception.
     void run(const std::function<void()>& task);
 
 private:

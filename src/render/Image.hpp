@@ -4,8 +4,6 @@
 // Rôle : buffer RGB et export PPM P6 avec gamma 2.2.
 // Responsable : Personne C
 // Dépendances : Color.hpp, <string>, <vector>
-// TODO(C): constructeur invalid_argument si width/height <= 0 ; calculer la
-// taille en size_t. setPixel/pixel hors image -> std::out_of_range.
 
 #include <string>
 #include <vector>
@@ -13,22 +11,25 @@
 
 namespace rt {
 
+/// Stocke une image RGB et l'exporte au format PPM.
 class Image {
 public:
-    // EN CLAIR : Image est une grille mémoire de couleurs linéaires avant
-    // export. Chaque pixel est adressé par (x,y), avec y=0 en haut.
-    // ENTRÉES / SORTIES : elle reçoit dimensions et couleurs, puis écrit PPM.
-    // APPELÉ PAR : Renderer puis main.
-    // PAS À FAIRE ICI : ne pas appliquer gamma pendant le shading.
-    // TODO(C): décrire le cycle dimensions -> pixels -> export.
+    /// Construit une image de dimensions positives.
     Image(int width, int height);
-    // TODO(C): retourner les dimensions.
-    int width() const noexcept { return 0; }
-    int height() const noexcept { return 0; }
+
+    /// Retourne la largeur de l'image.
+    int width() const noexcept;
+
+    /// Retourne la hauteur de l'image.
+    int height() const noexcept;
+
+    /// Définit la couleur du pixel indiqué.
     void setPixel(int x, int y, const Color& color);
+
+    /// Retourne la couleur du pixel indiqué.
     Color pixel(int x, int y) const;
-    // TODO(C): P6 binaire ; par composante clampColor -> pow(c, 1/2.2) ->
-    // toRgb8, puis vérifier ouverture et état du flux après écriture.
+
+    /// Écrit l'image au format PPM binaire avec correction gamma.
     void savePPM(const std::string& path) const;
 
 private:

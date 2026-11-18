@@ -1,5 +1,5 @@
 // Fichier : ThreadPool.cpp
-// Rôle : squelette d'exécution concurrente d'une tâche.
+// Rôle : exécution concurrente d'une tâche sur plusieurs workers.
 // Responsable : Personne C
 // Dépendances : ThreadPool.hpp
 // TODO : TODO(C): introduire une file de tâches et synchroniser proprement les workers.
@@ -8,17 +8,45 @@
 
 #include "render/ThreadPool.hpp"
 
+#include <algorithm>
+#include <exception>
+#include <mutex>
+
 namespace rt {
 
-ThreadPool::ThreadPool(unsigned workerCount) : workerCount_(workerCount) {}
+// workerCount == 0 est remplacé par 1.
+ThreadPool::ThreadPool(unsigned workerCount)
+    : workerCount_(std::max(1u, workerCount)) {}
+
 ThreadPool::~ThreadPool() = default;
 
 void ThreadPool::run(const std::function<void()>& task) {
-    // TODO(C): capturer std::exception_ptr dans chaque worker et la relancer
-    // après join() ; workerCount == 0 est remplacé par 1. Renderer passera
-    // une lambda qui boucle sur std::atomic<int> nextTile avec fetch_add(1).
-    (void)task;
-    (void)workerCount_;
+    std::exception_ptr firstError;
+    std::mutex errorMutex;
+
+    // Chaque worker exécute la tâche et mémorise la première exception levée.
+    auto guarded = [&]() {
+        try {
+            task();
+        } catch (...) {
+            std::lock_guard<std::mutex> lock(errorMutex);
+            if (!firstError) firstError = std::current_exception();
+        }
+    };
+
+    // workerCount_ - 1 threads supplémentaires ; le thread appelant est le
+    // dernier worker. Avec 1 worker, aucun thread n'est créé.
+    std::vector<std::thread> threads;
+    threads.reserve(workerCount_ - 1);
+    for (unsigned i = 0; i + 1 < workerCount_; ++i)
+        threads.emplace_back(guarded);
+
+    guarded();
+
+    for (auto& t : threads) t.join();
+
+    // Relance seulement après tous les join().
+    if (firstError) std::rethrow_exception(firstError);
 }
 
 } // namespace rt

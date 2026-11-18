@@ -26,11 +26,11 @@ après les `join`.
 
 ## Plan heure par heure
 
-- [ ] 1,5 h : Image et PPM.
-- [ ] 1,5 h : rendu mono-thread et M1.
-- [ ] 3 h : SceneParser.
-- [ ] 1 h : CLI.
-- [ ] 2 h : tuiles, threads et RNG.
+- [x] 1,5 h : Image et PPM.
+- [x] 1,5 h : rendu mono-thread et M1. +CMT: jitter ajouté
+- [x] 3 h : SceneParser.
+- [x] 1 h : CLI.
+- [x] 2 h : tuiles, threads et RNG.
 - [ ] 1 h : benchmark.
 
 ## Tests à écrire
