@@ -17,10 +17,9 @@ public:
     // la forme est touchée.
     // APPELÉ PAR : Scene::hit.
     // PAS À FAIRE ICI : ne pas connaître le type concret de l'objet.
-    // TODO(A): garder l'interface minimale pour Sphere, Plane et Triangle.
-    // TODO(A): détruire proprement la primitive via le pointeur de base.
     virtual ~Hittable() = default;
-    // Cherche une intersection dans l'intervalle fermé conceptuellement [tMin, tMax].
+    // Cherche l'intersection la plus proche avec t dans ]tMin, tMax[ ; remplit rec
+    // (point, normale unitaire opposée au rayon, t, frontFace, material) si vrai.
     virtual bool hit(const Ray& r, double tMin, double tMax, HitRecord& rec) const = 0;
 };
 

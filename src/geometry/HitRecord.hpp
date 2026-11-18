@@ -4,7 +4,8 @@
 // Rôle : informations produites par une intersection rayon/objet.
 // Responsable : Personne A
 // Dépendances : Ray.hpp, Vec3.hpp
-// TODO : TODO(A): vérifier la durée de vie du pointeur material avec Scene.
+// Note : material pointe vers un Material possédé (shared_ptr) par Scene et par
+// la primitive ; il reste valide tant que la Scene existe.
 
 #include "core/Ray.hpp"
 
@@ -23,9 +24,13 @@ struct HitRecord {
     // Non propriétaire ; le matériau appartient à Scene.
     const Material* material{nullptr};
 
-    // TODO(A): déterminer frontFace avec dot(ray.direction, outwardNormal),
-    // puis conserver une normale orientée contre le rayon incident.
-    void setFaceNormal(const Ray&, const Vec3&) noexcept {}
+    // outwardNormal doit être unitaire et pointer vers l'EXTÉRIEUR de l'objet.
+    // Si le rayon arrive de face (dot < 0) on garde la normale, sinon on la
+    // retourne : la normale stockée est toujours orientée contre le rayon.
+    void setFaceNormal(const Ray& r, const Vec3& outwardNormal) noexcept {
+        frontFace = dot(r.direction(), outwardNormal) < 0.0;
+        normal = frontFace ? outwardNormal : -outwardNormal;
+    }
 };
 
 } // namespace rt
