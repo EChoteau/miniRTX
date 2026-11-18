@@ -1,0 +1,9 @@
+# Test M3 : ombre portée.
+# Lumière juste au-dessus de la sphère -> ombre ronde et nette juste sous elle sur le sol.
+camera 0 3 7 0 0.5 0 45
+background 0.55 0.70 1.00
+material sol 0.80 0.80 0.80 0.10 0.80 0.00 1 0.00
+material vert 0.10 0.70 0.20 0.10 0.80 0.30 32 0.00
+light 0 6 0 1 1 1 1.0
+plane 0 0 0 0 1 0 sol
+sphere 0 1.2 0 0.8 vert

@@ -1,0 +1,4 @@
+# Test M1 : aucun objet -> seulement le dégradé du ciel.
+# Attendu : blanc en bas, bleu en haut, aucune variation horizontale.
+camera 0 0 5 0 0 0 60
+background 0.30 0.50 1.00

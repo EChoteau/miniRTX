@@ -1,0 +1,13 @@
+# Test triangles : pyramide à 4 faces sur un sol.
+# Attendu : pyramide jaune éclairée depuis la gauche : face gauche claire, face droite
+# sombre, et une longue ombre portée qui part vers la droite sur le sol.
+camera 3 3 6 0 0.8 0 45
+background 0.55 0.70 1.00
+material sol 0.70 0.70 0.70 0.10 0.80 0.00 1 0.00
+material jaune 0.90 0.75 0.10 0.15 0.80 0.10 16 0.00
+light -4 4 3 1 1 1 1.0
+plane 0 0 0 0 1 0 sol
+triangle -1 0 1   1 0 1   0 2 0  jaune
+triangle 1 0 1    1 0 -1  0 2 0  jaune
+triangle 1 0 -1  -1 0 -1  0 2 0  jaune
+triangle -1 0 -1 -1 0 1   0 2 0  jaune

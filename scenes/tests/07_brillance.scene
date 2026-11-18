@@ -1,0 +1,13 @@
+# Test spéculaire : 4 sphères grises, shininess 4 -> 16 -> 64 -> 256 de gauche à droite.
+# Attendu : le reflet blanc devient de plus en plus petit et net vers la droite.
+camera 0 0 9 0 0 0 40
+background 0.20 0.20 0.25
+material s4   0.40 0.40 0.45 0.10 0.70 0.60 4   0.00
+material s16  0.40 0.40 0.45 0.10 0.70 0.60 16  0.00
+material s64  0.40 0.40 0.45 0.10 0.70 0.60 64  0.00
+material s256 0.40 0.40 0.45 0.10 0.70 0.60 256 0.00
+light -3 4 8 1 1 1 1.0
+sphere -3.3 0 0 0.75 s4
+sphere -1.1 0 0 0.75 s16
+sphere  1.1 0 0 0.75 s64
+sphere  3.3 0 0 0.75 s256

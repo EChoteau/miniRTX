@@ -1,0 +1,15 @@
+# Test M4 : réflexion.
+# Sphère miroir au centre, rouge à gauche, bleue à droite.
+# Attendu : on voit la rouge et la bleue (inversées, déformées) DANS la sphère centrale,
+# ainsi que le sol et le ciel.
+camera 0 1.5 7 0 1 0 45
+background 0.55 0.70 1.00
+material sol 0.50 0.50 0.50 0.10 0.80 0.00 1 0.00
+material miroir 0.95 0.95 0.95 0.00 0.05 1.00 256 0.95
+material rouge 0.85 0.10 0.10 0.10 0.80 0.20 32 0.00
+material bleu 0.10 0.20 0.85 0.10 0.80 0.20 32 0.00
+light 3 6 6 1 1 1 1.0
+plane 0 0 0 0 1 0 sol
+sphere 0 1 0 1 miroir
+sphere -2.3 0.7 1.2 0.7 rouge
+sphere 2.3 0.7 1.2 0.7 bleu
