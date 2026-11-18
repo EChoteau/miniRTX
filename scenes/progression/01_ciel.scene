@@ -1,0 +1,4 @@
+# Étape 1 : ciel seul (caméra + rayons primaires + dégradé du fond).
+camera 0 2.2 8 0.3 0.9 0 45
+background 0.55 0.70 1.00
+material sol 0.60 0.60 0.60 0.25 0.75 0.00 1 0.00
