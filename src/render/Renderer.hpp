@@ -43,7 +43,7 @@ private:
     // TODO(B/C): skyColor = (1-t)*blanc + t*background, avec
     // t = 0.5 * (ray.direction.normalized().y() + 1) ; le background est le
     // haut du ciel. L'utiliser en absence d'intersection et à profondeur max.
-    Color skyColor(const Ray& ray) const;
+    Color skyColor(const Ray& ray, const Scene& scene) const;
     RenderSettings settings_;
 };
 

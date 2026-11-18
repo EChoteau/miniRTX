@@ -24,16 +24,40 @@ Image Renderer::render(const Scene& scene) const {
     return Image(settings_.width, settings_.height);
 }
 
-Color Renderer::trace(const Ray&, const Scene& scene, int depth) const {
-    // TODO(B): depth >= maxDepth ou absence d'intersection -> skyColor ; sinon
-    // shading local, puis réflexion avec tMin=RAY_T_MIN et depth+1. Ne jamais
-    // clamper dans trace/shading : le clamp et le gamma sont réservés à l'export.
-    return Color{};
+Color Renderer::trace(const Ray& ray, const Scene& scene, int depth) const {
+    // La profondeur borne la récursion avant de lancer un rayon supplémentaire.
+    if (depth >= settings_.maxDepth) {
+        return skyColor(ray, scene);
+    }
+
+    HitRecord hit;
+    if (!scene.hit(ray, RAY_T_MIN, INFINITY_VALUE, hit)) {
+        // Un rayon qui ne rencontre aucun objet voit le dégradé du ciel.
+        return skyColor(ray, scene);
+    }
+
+    // Le matériau fournit la couleur directe, déjà calculée sans clamp.
+    const Color local = computeLocalShading(hit, ray, scene);
+    if (hit.material == nullptr || hit.material->reflectivity <= 0.0) {
+        return local;
+    }
+
+    // Le rayon réfléchi repart du point touché ; RAY_T_MIN évitera
+    // l'auto-intersection lorsque la scène testera ce rayon secondaire.
+    const Ray reflectedRay(
+        hit.point, reflect(ray.direction(), hit.normal).normalized());
+    const Color reflected = trace(reflectedRay, scene, depth + 1);
+    const double reflectivity = hit.material->reflectivity;
+
+    // Le mélange conserve la couleur locale et ajoute la part miroir.
+    return (1.0 - reflectivity) * local + reflectivity * reflected;
 }
 
-Color Renderer::skyColor(const Ray&) const {
-    // TODO(B/C): calculer le dégradé vertical demandé à partir de la direction.
-    return Color{};
+Color Renderer::skyColor(const Ray& ray, const Scene& scene) const {
+    // t varie de 0 (horizon) à 1 (haut du ciel) selon la direction du rayon.
+    const double directionY = ray.direction().normalized().y();
+    const double t = 0.5 * (directionY + 1.0);
+    return (1.0 - t) * Color(1.0, 1.0, 1.0) + t * scene.background();
 }
 
 } // namespace rt

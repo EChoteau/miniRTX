@@ -7,9 +7,11 @@
 // spéculaire (1.4,0.5,0.5), objets d'ombre devant/derrière/sous la lampe.
 
 #include <gtest/gtest.h>
+#include <cmath>
 #include <memory>
 #include "material/Material.hpp"
 #include "geometry/Sphere.hpp"
+#include "render/Renderer.hpp"
 #include "scene/Scene.hpp"
 #include "geometry/HitRecord.hpp"
 
@@ -81,6 +83,50 @@ TEST(MaterialTest, AmbientAndDiffuseAreComputedWithoutClamping) {
     EXPECT_DOUBLE_EQ(result.z(), 0.0);
 }
 
+TEST(MaterialTest, AmbientIsIndependentFromNumberOfLights) {
+    auto material = std::make_shared<rt::Material>();
+    material->albedo = rt::Color(0.5, 0.25, 1.0);
+    material->ambient = 0.2;
+    material->diffuse = 0.0;
+    material->specular = 0.0;
+
+    rt::Scene scene;
+    scene.addLight(rt::PointLight{rt::Vec3(0.0, 10.0, 0.0)});
+    scene.addLight(rt::PointLight{rt::Vec3(0.0, 20.0, 0.0)});
+    const rt::HitRecord hit = hitWithMaterial(material);
+    const rt::Color result =
+        rt::computeLocalShading(hit, rt::Ray(rt::Vec3(0.0, 1.0, 0.0),
+                                             rt::Vec3(0.0, 1.0, 0.0)),
+                                scene);
+
+    // L'ambiant est ajouté une fois, même si plusieurs lumières existent.
+    EXPECT_DOUBLE_EQ(result.x(), 0.1);
+    EXPECT_DOUBLE_EQ(result.y(), 0.05);
+    EXPECT_DOUBLE_EQ(result.z(), 0.2);
+}
+
+TEST(MaterialTest, DiffuseDependsOnLightAngle) {
+    auto material = std::make_shared<rt::Material>();
+    material->albedo = rt::Color(1.0, 1.0, 1.0);
+    material->ambient = 0.0;
+    material->diffuse = 1.0;
+    material->specular = 0.0;
+
+    rt::Scene scene;
+    scene.addLight(rt::PointLight{rt::Vec3(0.0, 10.0, 10.0)});
+    const rt::HitRecord hit = hitWithMaterial(material);
+    const rt::Color result =
+        rt::computeLocalShading(hit, rt::Ray(rt::Vec3(0.0, 1.0, 0.0),
+                                             rt::Vec3(0.0, 1.0, 0.0)),
+                                scene);
+
+    // L forme un angle de 45 degrés avec N, donc max(N.L, 0) = sqrt(0.5).
+    const double expected = std::sqrt(0.5);
+    EXPECT_NEAR(result.x(), expected, 1e-12);
+    EXPECT_NEAR(result.y(), expected, 1e-12);
+    EXPECT_NEAR(result.z(), expected, 1e-12);
+}
+
 TEST(MaterialTest, LightBehindSurfaceOnlyAddsAmbient) {
     auto material = std::make_shared<rt::Material>();
     material->albedo = rt::Color(1.0, 0.0, 0.0);
@@ -120,4 +166,64 @@ TEST(MaterialTest, SpecularContributionCanExceedOne) {
     EXPECT_DOUBLE_EQ(result.x(), 1.4);
     EXPECT_DOUBLE_EQ(result.y(), 0.5);
     EXPECT_DOUBLE_EQ(result.z(), 0.5);
+}
+
+TEST(RendererTest, TraceReturnsSkyWhenDepthIsExhausted) {
+    rt::RenderSettings settings;
+    settings.maxDepth = 0;
+    rt::Renderer renderer(settings);
+    rt::Scene scene;
+    scene.setBackground(rt::Color(0.2, 0.4, 0.8));
+
+    const rt::Color result =
+        renderer.trace(rt::Ray(rt::Vec3(0.0, 0.0, 0.0),
+                               rt::Vec3(0.0, 1.0, 0.0)),
+                       scene, 0);
+
+    // A profondeur maximale, aucun rayon secondaire ne doit être lancé.
+    EXPECT_DOUBLE_EQ(result.x(), 0.2);
+    EXPECT_DOUBLE_EQ(result.y(), 0.4);
+    EXPECT_DOUBLE_EQ(result.z(), 0.8);
+}
+
+TEST(RendererTest, TraceReturnsSkyWhenRayMissesScene) {
+    rt::Renderer renderer;
+    rt::Scene scene;
+    scene.setBackground(rt::Color(0.2, 0.4, 0.8));
+
+    const rt::Color result =
+        renderer.trace(rt::Ray(rt::Vec3(0.0, 0.0, 0.0),
+                               rt::Vec3(0.0, 1.0, 0.0)),
+                       scene, 0);
+
+    // Sans intersection, la couleur vient du dégradé et du fond de la scène.
+    EXPECT_DOUBLE_EQ(result.x(), 0.2);
+    EXPECT_DOUBLE_EQ(result.y(), 0.4);
+    EXPECT_DOUBLE_EQ(result.z(), 0.8);
+}
+
+TEST(RendererTest, TraceUsesLocalColorWhenReflectivityIsZero) {
+    auto material = std::make_shared<rt::Material>();
+    material->albedo = rt::Color(1.0, 0.0, 0.0);
+    material->ambient = 0.2;
+    material->diffuse = 0.0;
+    material->specular = 0.0;
+    material->reflectivity = 0.0;
+
+    rt::Scene scene;
+    scene.setBackground(rt::Color(0.0, 0.0, 1.0));
+    scene.addLight(rt::PointLight{rt::Vec3(0.0, 10.0, 0.0)});
+    scene.addObject(std::make_unique<rt::Sphere>(
+        rt::Vec3(0.0, 0.0, -3.0), 1.0, material));
+
+    rt::Renderer renderer;
+    const rt::Color result =
+        renderer.trace(rt::Ray(rt::Vec3(0.0, 0.0, 0.0),
+                               rt::Vec3(0.0, 0.0, -1.0)),
+                       scene, 0);
+
+    // Sans réflexion, trace renvoie exactement l'éclairage local.
+    EXPECT_DOUBLE_EQ(result.x(), 0.2);
+    EXPECT_DOUBLE_EQ(result.y(), 0.0);
+    EXPECT_DOUBLE_EQ(result.z(), 0.0);
 }

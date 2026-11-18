@@ -20,11 +20,11 @@ la lampe. Une réflexion utilise aussi `RAY_T_MIN`. `trace` retourne `skyColor`
 
 ## Plan heure par heure
 
-- [ ] 1,5 h : comprendre N, L, V et R.
-- [ ] 1,5 h : ombres.
-- [ ] 2 h : ambiant et diffus.
-- [ ] 1 h : spéculaire.
-- [ ] 2 h : trace et réflexion.
+- [x] 1,5 h : comprendre N, L, V et R.
+- [x] 1,5 h : ombres.
+- [x] 2 h : ambiant et diffus.
+- [x] 1 h : spéculaire.
+- [x] 2 h : trace et réflexion.
 - [ ] 1 h : régler demo.scene.
 - [ ] 1 h : intégration.
 
@@ -46,6 +46,42 @@ A fournit un `HitRecord` fiable ; B renvoie une `Color` linéaire non clampée.
 
 Les valeurs Phong, ombres et réflexions sont vérifiées sans clamp prématuré,
 et C peut conserver exclusivement `Renderer::render`.
+
+## Trace et réflexion récursive
+
+`Renderer::trace` traite un rayon complet, de son départ jusqu'à la couleur
+retournée :
+
+1. si `depth >= maxDepth`, retourner le ciel ;
+2. appeler `Scene::hit` dans `[RAY_T_MIN, INFINITY_VALUE]` ;
+3. en cas d'absence d'intersection, retourner le ciel ;
+4. calculer la couleur locale avec `computeLocalShading` ;
+5. si `reflectivity == 0`, retourner cette couleur locale ;
+6. calculer la direction miroir avec `reflect(ray.direction, hit.normal)` ;
+7. appeler récursivement `trace` avec `depth + 1` ;
+8. mélanger les deux couleurs :
+
+```text
+result = (1 - reflectivity) * local
+       + reflectivity * reflected
+```
+
+Le rayon réfléchi part du point d'intersection. La borne `RAY_T_MIN` est
+appliquée lors de la prochaine recherche d'intersection afin d'éviter que
+l'objet touché soit immédiatement retrouvé comme obstacle secondaire.
+
+Le ciel est calculé par interpolation entre le blanc à l'horizon et
+`scene.background()` au-dessus :
+
+```text
+t = 0.5 * (normalize(ray.direction).y + 1)
+sky = (1 - t) * blanc + t * background
+```
+
+La récursion s'arrête donc dans deux situations : lorsqu'il n'y a plus
+d'intersection, ou lorsque la profondeur maximale est atteinte. Dans les deux
+cas, le rayon voit le ciel. La couleur reste linéaire et non clampée pendant
+tout ce calcul.
 
 # Théorie
 
@@ -105,6 +141,28 @@ Avec une vue alignée sur le reflet et `specular=0.5`, la composante spéculaire
 peut dépasser 1 dans un canal. Le résultat `(1.4,0.5,0.5)` est correct avant
 export : le clamp et le gamma ne doivent pas être appliqués dans le shading.
 
+## Types C++ et valeurs numériques
+
+Les types de base sont vérifiés par le compilateur C++. Par exemple, passer un
+`std::string` à une fonction qui attend un `int`, ou une couleur à une fonction
+qui attend un `Ray`, provoque normalement une erreur de compilation. Il n'est
+donc pas nécessaire d'écrire un test GoogleTest pour chaque combinaison
+impossible de types.
+
+Les tests unitaires servent plutôt à vérifier les valeurs et les comportements
+valides que le compilateur ne peut pas déduire :
+
+- une normale et une direction sont bien normalisées avant les produits
+  scalaires ;
+- une lumière derrière la surface donne un diffus nul ;
+- l'ambiant est ajouté une seule fois ;
+- une ombre supprime la contribution de la bonne lumière ;
+- le résultat reste non clampé.
+
+Les types ne garantissent pas les valeurs : un `double` peut être négatif ou
+beaucoup trop grand pour un coefficient Phong. Les bornes et la validation des
+paramètres relèvent donc du contrat du matériau et de tests numériques.
+
 ## Vecteurs de PHONG
 
 Le modèle de Phong calcule la couleur d'un point de la surface à partir de quatre vecteurs, tous définis **au point touché** `P`. Ils sont **normalisés** (longueur 1) et tous orientés **en partant de la surface**. Pour deux vecteurs unitaires, le produit scalaire est égal au cosinus de l'angle qui les sépare : 1 s'ils sont alignés, 0 s'ils sont perpendiculaires, négatif s'ils sont opposés. C'est ce qui permet de mesurer l'éclairage avec de simples produits scalaires.
@@ -147,4 +205,3 @@ light.color · intensity · (diffuse · max(N·L, 0) · albedo + specular · spe
 ```
 
 Les couleurs restent **linéaires** et ne sont pas bornées avant l'export de l'image.
-
