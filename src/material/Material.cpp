@@ -15,6 +15,11 @@
 namespace rt {
 
 Color computeLocalShading(const HitRecord& hit, const Ray& viewRay, const Scene& scene) {
+    const ShadingTerms terms = computeShadingTerms(hit, viewRay, scene);
+    return terms.ambientDiffuse + terms.specular;
+}
+
+ShadingTerms computeShadingTerms(const HitRecord& hit, const Ray& viewRay, const Scene& scene) {
     const Material& material = *hit.material;
     // N et V doivent être unitaires pour que les produits scalaires
     // représentent directement des cosinus d'angles.
@@ -22,7 +27,7 @@ Color computeLocalShading(const HitRecord& hit, const Ray& viewRay, const Scene&
     const Vec3 view = (-viewRay.direction()).normalized();
 
     // L'ambiant ne dépend pas des lumières et n'est ajouté qu'une seule fois.
-    Color result = material.ambient * material.albedo;
+    ShadingTerms result{material.ambient * material.albedo, Color{}};
 
     for (const PointLight& light : scene.lights()) {
         if (isInShadow(hit.point, light, scene)) {
@@ -42,8 +47,10 @@ Color computeLocalShading(const HitRecord& hit, const Ray& viewRay, const Scene&
         // Une lumière derrière la surface ne produit ni diffus ni spéculaire.
         const double diffuseFactor =
             std::max(Vec3::dot(normal, lightDirection), 0.0);
-        Color contribution =
-            material.diffuse * diffuseFactor * material.albedo;
+        // La couleur et l'intensité de la lampe modulent diffus et spéculaire.
+        const Color lightColor = light.color * light.intensity;
+        result.ambientDiffuse +=
+            lightColor * (material.diffuse * diffuseFactor * material.albedo);
 
         if (diffuseFactor > 0.0) {
             // Le spéculaire ne s'ajoute que si la lumière atteint la face.
@@ -56,12 +63,9 @@ Color computeLocalShading(const HitRecord& hit, const Ray& viewRay, const Scene&
             const double specularContribution =
                 material.specular * specularFactor;
             // Le spéculaire est une intensité blanche ajoutée aux trois canaux.
-            contribution += Color(
+            result.specular += lightColor * Color(
                 specularContribution, specularContribution, specularContribution);
         }
-
-        // La couleur et l'intensité de la lampe modulent diffus et spéculaire.
-        result += light.color * light.intensity * contribution;
     }
 
     return result;

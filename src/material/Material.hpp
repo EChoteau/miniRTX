@@ -37,6 +37,17 @@ struct Material {
     double reflectivity{0.0};
 };
 
+// Termes de Phong séparés : le Renderer atténue la partie "couleur de la surface"
+// (ambiant + diffus) par (1 - reflectivity), mais garde le spéculaire entier, car
+// le spéculaire EST le reflet de la lampe, qu'un miroir doit montrer.
+struct ShadingTerms {
+    Color ambientDiffuse;
+    Color specular;
+};
+
+// Calcule séparément ambiant + diffus et spéculaire pour les lumières non occultées.
+ShadingTerms computeShadingTerms(const HitRecord& hit, const Ray& viewRay, const Scene& scene);
+
 // Calcule ambiant + diffus + spéculaire pour toutes les lumières non occultées.
 Color computeLocalShading(const HitRecord& hit, const Ray& viewRay, const Scene& scene);
 

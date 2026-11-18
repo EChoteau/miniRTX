@@ -109,7 +109,7 @@ Color Renderer::trace(const Ray& ray, const Scene& scene, int depth) const {
     if (!scene.hit(ray, RAY_T_MIN, std::numeric_limits<double>::infinity(), hit))
         return skyColor(ray, scene);
 
-    const Color local = computeLocalShading(hit, ray, scene);
+    const ShadingTerms local = computeShadingTerms(hit, ray, scene);
 
     const double r = hit.material ? hit.material->reflectivity : 0.0;
     if (r > 0.0) {
@@ -117,10 +117,12 @@ Color Renderer::trace(const Ray& ray, const Scene& scene, int depth) const {
             Vec3::reflect(ray.direction().normalized(), hit.normal).normalized();
         const Ray reflected(hit.point, dir);
         const Color refl = trace(reflected, scene, depth + 1);
-        return local * (1.0 - r) + refl * r;
+        // Seule la couleur propre de la surface s'efface devant le miroir ; le
+        // spéculaire (reflet de la lampe) reste entier.
+        return local.ambientDiffuse * (1.0 - r) + refl * r + local.specular;
     }
 
-    return local;
+    return local.ambientDiffuse + local.specular;
 }
 
 Color Renderer::skyColor(const Ray& ray, const Scene& scene) const {
