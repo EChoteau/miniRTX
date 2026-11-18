@@ -23,16 +23,17 @@ struct RenderSettings {
 
 class Renderer {
 public:
-    public:
     // EN CLAIR : Renderer orchestre le trajet caméra -> rayon -> intersection
     // -> couleur -> image. Il sépare trace (B) et render (C).
     // ENTRÉES / SORTIES : il reçoit Scene et réglages, puis renvoie Image.
     // APPELÉ PAR : main et le benchmark.
     // PAS À FAIRE ICI : ne pas parser la scène ni écrire directement un fichier.
 
-    // TODO(C): relier tileSize et threadCount lors du passage aux tuiles.
+    // Valide les réglages (lève std::invalid_argument si invalides).
     explicit Renderer(RenderSettings settings = {});
-    // TODO(C): implémenter le tuilage atomique et le RNG par tuile pour le multi-threading.
+    // Découpe l'image en tuiles tileSize x tileSize, distribuées aux workers du
+    // ThreadPool via un compteur atomique. Un mt19937 par tuile (baseSeed +
+    // tileIndex) rend l'image identique quel que soit threadCount.
     Image render(const Scene& scene) const;
 
     // Retourne le fond si depth atteint maxDepth, sinon intersection et éclairage.
