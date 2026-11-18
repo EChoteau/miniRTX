@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" font-family="Helvetica, Arial, sans-serif" font-size="14">
+  <defs>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2471a3"/>
+    </marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1e8449"/>
+    </marker>
+    <marker id="n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2c3e50"/>
+    </marker>
+    <marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8e44ad"/>
+    </marker>
+    <linearGradient id="mir" x1="0" x2="1"><stop offset="0" stop-color="#d6eaf8"/><stop offset="0.5" stop-color="#ffffff"/><stop offset="1" stop-color="#d6eaf8"/></linearGradient>
+  </defs>
+  <rect width="960" height="400" fill="#ffffff"/>
+  <text x="480" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#2c3e50">Réflexion dans Renderer::trace</text>
+
+  <!-- miroir -->
+  <rect x="60" y="300" width="480" height="16" fill="url(#mir)" stroke="#5d6d7e" stroke-width="2"/>
+  <text x="70" y="340" fill="#5d6d7e">surface miroir (reflectivity = k)</text>
+
+  <!-- normale -->
+  <line x1="300" y1="300" x2="300" y2="140" stroke="#2c3e50" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#n)"/>
+  <text x="308" y="150" fill="#2c3e50" font-style="italic" font-weight="bold">N</text>
+
+  <!-- incident -->
+  <line x1="100" y1="120" x2="296" y2="296" stroke="#2471a3" stroke-width="3" marker-end="url(#b)"/>
+  <text x="30" y="88" fill="#2471a3" font-weight="bold">rayon incident D</text>
+  <text x="30" y="105" fill="#2471a3" font-family="Consolas, Menlo, monospace" font-size="12">trace(ray, depth)</text>
+
+  <!-- reflechi -->
+  <line x1="300" y1="300" x2="497" y2="123" stroke="#1e8449" stroke-width="3" marker-end="url(#g)"/>
+  <text x="362" y="255" fill="#1e8449" font-weight="bold">rayon réfléchi R</text>
+  <text x="362" y="272" fill="#1e8449" font-family="Consolas, Menlo, monospace" font-size="12">R = reflect(D, N)</text>
+  <text x="362" y="288" fill="#1e8449" font-family="Consolas, Menlo, monospace" font-size="12">origine P, tMin = RAY_T_MIN</text>
+
+  <!-- angles -->
+  <path d="M300,250 A50,50 0 0 0 263,266" fill="none" stroke="#7f8c8d" stroke-width="1.5"/>
+  <path d="M300,250 A50,50 0 0 1 337,266" fill="none" stroke="#7f8c8d" stroke-width="1.5"/>
+  <text x="272" y="240" fill="#7f8c8d" font-style="italic">θ</text>
+  <text x="318" y="240" fill="#7f8c8d" font-style="italic">θ</text>
+
+  <!-- P -->
+  <circle cx="300" cy="300" r="6" fill="#c0392b"/>
+  <text x="292" y="335" fill="#c0392b" font-weight="bold">P</text>
+
+  <!-- sphere touchee par R -->
+  <circle cx="522" cy="98" r="31" fill="#f5b7b1" stroke="#c0392b" stroke-width="2"/>
+  <text x="440" y="185" fill="#1e8449" font-family="Consolas, Menlo, monospace" font-size="12" font-weight="bold">trace(R, depth + 1)</text>
+
+  <!-- rebond suivant -->
+  <line x1="500" y1="120" x2="410" y2="62" stroke="#8e44ad" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#p)"/>
+  <text x="300" y="55" fill="#8e44ad" font-family="Consolas, Menlo, monospace" font-size="12">depth + 2 … jusqu'à maxDepth</text>
+
+  <!-- panneau algo -->
+  <rect x="585" y="55" width="355" height="300" rx="12" fill="#f8f9f9" stroke="#aab7b8" stroke-width="1.5"/>
+  <text x="762" y="82" text-anchor="middle" font-weight="bold" fill="#2c3e50">trace(ray, depth)</text>
+  <g font-family="Consolas, Menlo, monospace" font-size="12.5" fill="#2c3e50">
+    <text x="600" y="112"><tspan fill="#c0392b">1.</tspan> depth ≥ maxDepth → skyColor</text>
+    <text x="600" y="140"><tspan fill="#c0392b">2.</tspan> aucune intersection → skyColor</text>
+    <text x="600" y="168"><tspan fill="#c0392b">3.</tspan> local = computeLocalShading(hit)</text>
+    <text x="600" y="196"><tspan fill="#c0392b">4.</tspan> k = reflectivity</text>
+    <text x="620" y="214" fill="#7f8c8d">si k = 0 → retourner local</text>
+    <text x="600" y="242"><tspan fill="#c0392b">5.</tspan> R = reflect(D, N)</text>
+    <text x="600" y="270"><tspan fill="#c0392b">6.</tspan> reflected =</text>
+    <text x="620" y="288" fill="#1e8449" font-weight="bold">trace(R, depth + 1)</text>
+    <text x="600" y="320"><tspan fill="#c0392b">7.</tspan> (1 − k)·local + k·reflected</text>
+  </g>
+
+  <text x="480" y="385" text-anchor="middle" font-size="13" fill="#2c3e50">Chaque rebond augmente depth de 1 : la condition 1 garantit l'arrêt de la récursion.</text>
+</svg>

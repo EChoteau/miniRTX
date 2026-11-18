@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 305" font-family="Helvetica, Arial, sans-serif" font-size="14">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2c3e50"/>
+    </marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="950" height="305" fill="#ffffff"/>
+  <text x="475" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#2c3e50">computeLocalShading : ordre de calcul</text>
+
+  <!-- cadre boucle -->
+  <rect x="195" y="52" width="560" height="210" rx="12" fill="#fdf2e9" stroke="#e67e22" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="475" y="72" text-anchor="middle" fill="#e67e22" font-weight="bold">pour chaque lumière</text>
+
+  <!-- boites -->
+  <g font-weight="bold" text-anchor="middle">
+    <rect x="20"  y="95" width="160" height="60" rx="10" fill="#d6eaf8" stroke="#1f618d" stroke-width="2"/>
+    <text x="100" y="131" fill="#1f618d">HitRecord</text>
+    <rect x="215" y="95" width="160" height="60" rx="10" fill="#e8daef" stroke="#6c3483" stroke-width="2"/>
+    <text x="295" y="131" fill="#6c3483">Ombre ?</text>
+    <rect x="395" y="95" width="160" height="60" rx="10" fill="#fcf3cf" stroke="#b7950b" stroke-width="2"/>
+    <text x="475" y="131" fill="#9a7d0a">Diffus</text>
+    <rect x="575" y="95" width="160" height="60" rx="10" fill="#fdebd0" stroke="#ca6f1e" stroke-width="2"/>
+    <text x="655" y="131" fill="#a04000">Spéculaire</text>
+    <rect x="775" y="95" width="160" height="60" rx="10" fill="#d5f5e3" stroke="#1e8449" stroke-width="2"/>
+    <text x="855" y="131" fill="#1e8449">Couleur locale</text>
+  </g>
+
+  <!-- fleches -->
+  <g stroke="#2c3e50" stroke-width="2" marker-end="url(#a)">
+    <line x1="180" y1="125" x2="212" y2="125"/>
+    <line x1="375" y1="125" x2="392" y2="125"/>
+    <line x1="555" y1="125" x2="572" y2="125"/>
+    <line x1="735" y1="125" x2="772" y2="125"/>
+  </g>
+
+  <!-- annotations -->
+  <g font-family="Consolas, Menlo, monospace" font-size="12" text-anchor="middle" fill="#2c3e50">
+    <text x="100" y="178">point P, normale N</text>
+    <text x="100" y="194">matériau, t</text>
+    <text x="295" y="178">isInShadow(P, L)</text>
+    <text x="475" y="178">diffuse·max(N·L,0)</text>
+    <text x="475" y="194">·albedo</text>
+    <text x="655" y="178">specular·max(R·V,0)</text>
+    <text x="655" y="194">^shininess</text>
+    <text x="655" y="212" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#a04000">seulement si diffus &gt; 0</text>
+    <text x="855" y="178">ambient·albedo</text>
+    <text x="855" y="194">+ Σ lumières</text>
+    <text x="855" y="212" font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#1e8449">non clampée</text>
+  </g>
+
+  <!-- branche ombre -->
+  <path d="M222,155 L222,232 L740,232 L740,160" fill="none" stroke="#c0392b" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#r)"/>
+  <text x="228" y="200" font-size="12" fill="#c0392b" font-weight="bold">oui</text>
+  <text x="481" y="250" font-size="12" fill="#c0392b" text-anchor="middle">lumière suivante (pas de diffus ni de spéculaire pour elle)</text>
+
+  <text x="475" y="290" text-anchor="middle" font-size="13" fill="#2c3e50">L'ambiant est ajouté une seule fois ; le diffus et le spéculaire sont additionnés pour chaque lumière non bloquée.</text>
+</svg>
